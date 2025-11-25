@@ -1,0 +1,897 @@
+{
+	"info": {
+		"_postman_id": "histoires-interactives-2024",
+		"name": "Histoires Interactives API",
+		"description": "Collection complète pour tester l'API des histoires interactives",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register - LECTEUR",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test.lecteur@example.com\",\n  \"username\": \"test_lecteur\",\n  \"password\": \"password123\",\n  \"role\": \"LECTEUR\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Register - AUTEUR",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test.auteur@example.com\",\n  \"username\": \"test_auteur\",\n  \"password\": \"password123\",\n  \"role\": \"AUTEUR\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login - Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.environment.set(\"admin_token\", jsonData.token);",
+									"    pm.environment.set(\"admin_id\", jsonData.user.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login - Auteur (Alice)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.environment.set(\"auteur_token\", jsonData.token);",
+									"    pm.environment.set(\"auteur_id\", jsonData.user.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login - Lecteur (Charlie)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.environment.set(\"lecteur_token\", jsonData.token);",
+									"    pm.environment.set(\"lecteur_id\", jsonData.user.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"charlie@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Me",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auteur_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Histoires (Lecteur)",
+			"item": [
+				{
+					"name": "Get All Histoires Publiées",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/lecteur/histoires",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lecteur",
+								"histoires"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Histoire By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/lecteur/histoires/{{histoire_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lecteur",
+								"histoires",
+								"{{histoire_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Histoires",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/lecteur/histoires?search=mystère",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lecteur",
+								"histoires"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "mystère"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Page By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{lecteur_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/lecteur/histoires/{{histoire_id}}/pages/{{page_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lecteur",
+								"histoires",
+								"{{histoire_id}}",
+								"pages",
+								"{{page_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Commencer Histoire",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{lecteur_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"histoireId\": \"{{histoire_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/lecteur/commencer",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lecteur",
+								"commencer"
+							]
+						}
+					}
+				},
+				{
+					"name": "Terminer Partie",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{lecteur_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"histoireId\": \"{{histoire_id}}\",\n  \"pageFin\": \"{{page_id}}\",\n  \"parcours\": [\"{{page_id}}\", \"{{page_id}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/lecteur/terminer",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lecteur",
+								"terminer"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Statistiques Histoire",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/lecteur/histoires/{{histoire_id}}/statistiques",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lecteur",
+								"histoires",
+								"{{histoire_id}}",
+								"statistiques"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Histoires (Auteur)",
+			"item": [
+				{
+					"name": "Create Histoire",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.histoire && jsonData.histoire._id) {",
+									"    pm.environment.set(\"histoire_id\", jsonData.histoire._id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auteur_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"Nouvelle Histoire Test\",\n  \"descriptionCourte\": \"Une histoire créée via Postman pour tester l'API\",\n  \"tags\": [\"test\", \"postman\", \"api\"],\n  \"theme\": \"Test\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auteur/histoires",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auteur",
+								"histoires"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Mes Histoires",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auteur_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auteur/histoires",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auteur",
+								"histoires"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Histoire",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auteur_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"Histoire Modifiée\",\n  \"descriptionCourte\": \"Description mise à jour\",\n  \"tags\": [\"test\", \"modifié\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auteur/histoires/{{histoire_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auteur",
+								"histoires",
+								"{{histoire_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Page",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.page && jsonData.page._id) {",
+									"    pm.environment.set(\"page_id\", jsonData.page._id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auteur_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"texte\": \"Vous arrivez à un carrefour. Quel chemin prenez-vous ?\",\n  \"statutFin\": false,\n  \"choix\": [\n    {\n      \"texte\": \"Aller à gauche\",\n      \"idPageChoix\": \"6748a1234567890123456789\"\n    },\n    {\n      \"texte\": \"Aller à droite\",\n      \"idPageChoix\": \"6748a1234567890123456790\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auteur/histoires/{{histoire_id}}/pages",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auteur",
+								"histoires",
+								"{{histoire_id}}",
+								"pages"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Page",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auteur_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"texte\": \"Texte de page modifié\",\n  \"statutFin\": false,\n  \"choix\": []\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auteur/histoires/{{histoire_id}}/pages/{{page_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auteur",
+								"histoires",
+								"{{histoire_id}}",
+								"pages",
+								"{{page_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Page",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auteur_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auteur/histoires/{{histoire_id}}/pages/{{page_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auteur",
+								"histoires",
+								"{{histoire_id}}",
+								"pages",
+								"{{page_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Set Page Depart",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auteur_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pageDepart\": \"{{page_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auteur/histoires/{{histoire_id}}/page-depart",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auteur",
+								"histoires",
+								"{{histoire_id}}",
+								"page-depart"
+							]
+						}
+					}
+				},
+				{
+					"name": "Publish Histoire",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auteur_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auteur/histoires/{{histoire_id}}/publier",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auteur",
+								"histoires",
+								"{{histoire_id}}",
+								"publier"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Histoire",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auteur_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auteur/histoires/{{histoire_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auteur",
+								"histoires",
+								"{{histoire_id}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"users"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update User Role",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"AUTEUR\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/users/{{lecteur_id}}/role",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"{{lecteur_id}}",
+								"role"
+							]
+						}
+					}
+				},
+				{
+					"name": "Ban User",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ban\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/users/{{lecteur_id}}/ban",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"{{lecteur_id}}",
+								"ban"
+							]
+						}
+					}
+				},
+				{
+					"name": "Unban User",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ban\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/users/{{lecteur_id}}/ban",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"{{lecteur_id}}",
+								"ban"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Histoires (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/histoires",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"histoires"
+							]
+						}
+					}
+				},
+				{
+					"name": "Suspend Histoire",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"suspend\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/histoires/{{histoire_id}}/suspend",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"histoires",
+								"{{histoire_id}}",
+								"suspend"
+							]
+						}
+					}
+				},
+				{
+					"name": "Unsuspend Histoire",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"suspend\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/histoires/{{histoire_id}}/suspend",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"histoires",
+								"{{histoire_id}}",
+								"suspend"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Statistiques Globales",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/statistiques",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"statistiques"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}
