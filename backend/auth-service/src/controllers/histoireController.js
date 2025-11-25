@@ -1,4 +1,4 @@
-const { Histoire, Page } = require('../model/histoire');
+const { Histoire } = require('../model/histoire');
 
 // Créer une nouvelle histoire
 exports.createHistoire = async (req, res) => {
@@ -184,12 +184,21 @@ exports.publishHistoire = async (req, res) => {
 // Obtenir toutes les pages d'une histoire
 exports.getPagesHistoire = async (req, res) => {
     try {
-        const pages = await Page.find({ histoire: req.params.id })
-            .populate('choix.pageDestination', 'titre');
+        const histoire = await Histoire.findOne({ 
+            _id: req.params.id,
+            auteur: req.user._id
+        });
+
+        if (!histoire) {
+            return res.status(404).json({
+                success: false,
+                message: 'Histoire non trouvée ou vous n\'êtes pas l\'auteur'
+            });
+        }
 
         res.json({
             success: true,
-            data: pages
+            data: histoire.pages
         });
     } catch (error) {
         res.status(500).json({
@@ -218,19 +227,23 @@ exports.createPage = async (req, res) => {
             });
         }
 
-        const page = new Page({
-            histoire: histoireId,
+        // Créer la nouvelle page embarquée
+        const nouvellePage = {
             texte,
             titre,
             choix: choix || [],
             statutFin: statutFin || false
-        });
+        };
 
-        await page.save();
+        histoire.pages.push(nouvellePage);
+        await histoire.save();
+
+        // Récupérer la page qui vient d'être ajoutée
+        const pageCreee = histoire.pages[histoire.pages.length - 1];
 
         res.status(201).json({
             success: true,
-            data: page,
+            data: pageCreee,
             message: 'Page créée avec succès'
         });
     } catch (error) {
@@ -245,8 +258,21 @@ exports.createPage = async (req, res) => {
 exports.updatePage = async (req, res) => {
     try {
         const { texte, titre, choix, statutFin } = req.body;
+        const { id, pageId } = req.params;
         
-        const page = await Page.findById(req.params.pageId).populate('histoire');
+        const histoire = await Histoire.findOne({ 
+            _id: id,
+            auteur: req.user._id
+        });
+
+        if (!histoire) {
+            return res.status(404).json({
+                success: false,
+                message: 'Histoire non trouvée ou vous n\'êtes pas l\'auteur'
+            });
+        }
+
+        const page = histoire.pages.id(pageId);
 
         if (!page) {
             return res.status(404).json({
@@ -255,20 +281,12 @@ exports.updatePage = async (req, res) => {
             });
         }
 
-        // Vérifier que l'utilisateur est l'auteur
-        if (page.histoire.auteur.toString() !== req.user._id.toString()) {
-            return res.status(403).json({
-                success: false,
-                message: 'Vous n\'êtes pas autorisé à modifier cette page'
-            });
-        }
-
         if (texte) page.texte = texte;
         if (titre !== undefined) page.titre = titre;
         if (choix) page.choix = choix;
         if (statutFin !== undefined) page.statutFin = statutFin;
 
-        await page.save();
+        await histoire.save();
 
         res.json({
             success: true,
@@ -286,7 +304,21 @@ exports.updatePage = async (req, res) => {
 // Supprimer une page
 exports.deletePage = async (req, res) => {
     try {
-        const page = await Page.findById(req.params.pageId).populate('histoire');
+        const { id, pageId } = req.params;
+        
+        const histoire = await Histoire.findOne({ 
+            _id: id,
+            auteur: req.user._id
+        });
+
+        if (!histoire) {
+            return res.status(404).json({
+                success: false,
+                message: 'Histoire non trouvée ou vous n\'êtes pas l\'auteur'
+            });
+        }
+
+        const page = histoire.pages.id(pageId);
 
         if (!page) {
             return res.status(404).json({
@@ -295,15 +327,9 @@ exports.deletePage = async (req, res) => {
             });
         }
 
-        // Vérifier que l'utilisateur est l'auteur
-        if (page.histoire.auteur.toString() !== req.user._id.toString()) {
-            return res.status(403).json({
-                success: false,
-                message: 'Vous n\'êtes pas autorisé à supprimer cette page'
-            });
-        }
-
-        await Page.findByIdAndDelete(req.params.pageId);
+        // Supprimer la page du tableau
+        page.deleteOne();
+        await histoire.save();
 
         res.json({
             success: true,
