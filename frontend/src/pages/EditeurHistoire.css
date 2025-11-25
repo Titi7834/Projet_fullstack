@@ -1,0 +1,334 @@
+.editeur-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.editeur-header {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.editeur-header h1 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.histoire-description {
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 1rem;
+}
+
+.histoire-meta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.page-depart-info {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-new-page,
+.btn-back {
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.btn-new-page {
+  background: #4CAF50;
+  color: white;
+}
+
+.btn-new-page:hover {
+  background: #45a049;
+}
+
+.btn-back {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.btn-back:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.empty-pages {
+  text-align: center;
+  padding: 4rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+}
+
+.empty-pages p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.btn-create-first-page {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-create-first-page:hover {
+  background: #45a049;
+}
+
+.pages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.page-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s;
+}
+
+.page-card:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-3px);
+}
+
+.page-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.page-card-header h3 {
+  color: white;
+  font-size: 1.2rem;
+  flex: 1;
+}
+
+.badge-fin {
+  background: #FF5722;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.page-preview {
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  min-height: 80px;
+}
+
+.page-choix-count {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.page-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.btn-edit-page,
+.btn-set-start,
+.btn-delete-page {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.btn-edit-page {
+  background: #2196F3;
+  color: white;
+  flex: 1;
+}
+
+.btn-edit-page:hover {
+  background: #1976D2;
+}
+
+.btn-set-start {
+  background: #FF9800;
+  color: white;
+}
+
+.btn-set-start:hover {
+  background: #F57C00;
+}
+
+.btn-delete-page {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0.5rem;
+}
+
+.btn-delete-page:hover {
+  background: #f44336;
+}
+
+.is-start {
+  color: #4CAF50;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.modal-large {
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.form-group-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group-checkbox input[type="checkbox"] {
+  width: auto;
+  cursor: pointer;
+}
+
+.form-group-checkbox label {
+  color: white;
+  cursor: pointer;
+  margin: 0;
+}
+
+.choix-section {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.choix-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.choix-header h3 {
+  color: white;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.btn-add-choix {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.btn-add-choix:hover {
+  background: #45a049;
+}
+
+.choix-item {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  align-items: flex-start;
+}
+
+.choix-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.choix-fields input,
+.choix-fields select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 0.95rem;
+}
+
+.choix-fields select option {
+  background: #1a3a52;
+  color: white;
+}
+
+.btn-remove-choix {
+  background: rgba(255, 0, 0, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 0, 0, 0.5);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.btn-remove-choix:hover {
+  background: rgba(255, 0, 0, 0.4);
+}
+
+@media (max-width: 768px) {
+  .editeur-header {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .btn-new-page,
+  .btn-back {
+    flex: 1;
+  }
+
+  .pages-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-actions {
+    flex-wrap: wrap;
+  }
+}
