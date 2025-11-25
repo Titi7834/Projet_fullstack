@@ -45,7 +45,7 @@ const LecteurHistoire = () => {
 
   const handleChoix = async (choix) => {
     try {
-      const response = await api.getPage(choix.pageDestination, token);
+      const response = await api.getPage(id, choix.idPageChoix, token);
       const data = await response.json();
 
       if (data.success) {

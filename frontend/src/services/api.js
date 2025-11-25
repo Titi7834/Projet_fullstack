@@ -25,8 +25,8 @@ const api = {
       headers: { 'Authorization': `Bearer ${token}` }
     }),
 
-  getPage: (pageId, token) =>
-    fetch(`${API_BASE_URL}/lecteur/pages/${pageId}`, {
+  getPage: (histoireId, pageId, token) =>
+    fetch(`${API_BASE_URL}/lecteur/histoires/${histoireId}/pages/${pageId}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     }),
 

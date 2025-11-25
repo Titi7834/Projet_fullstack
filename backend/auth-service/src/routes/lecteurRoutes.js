@@ -10,9 +10,10 @@ router.get('/histoires', lecteurController.getHistoiresPubliees);
 router.use(authMiddleware);
 
 router.get('/histoires/:id/commencer', lecteurController.commencerHistoire);
-router.get('/pages/:pageId', lecteurController.getPage);
+router.get('/histoires/:histoireId/pages/:pageId', lecteurController.getPage);
 router.post('/parties/terminer', lecteurController.terminerPartie);
 router.get('/mes-parties', lecteurController.getMesParties);
 router.get('/histoires/:id/statistiques', lecteurController.getStatistiquesHistoire);
+router.get('/histoires/:id', lecteurController.getHistoireById);
 
 module.exports = router;

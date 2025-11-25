@@ -1,4 +1,4 @@
-const { Histoire, Page } = require('../model/histoire');
+const { Histoire } = require('../model/histoire');
 const { Partie } = require('../model/lecteur');
 
 // Obtenir toutes les histoires publiées avec recherche
@@ -36,7 +36,6 @@ exports.getHistoiresPubliees = async (req, res) => {
 exports.commencerHistoire = async (req, res) => {
     try {
         const histoire = await Histoire.findById(req.params.id)
-            .populate('pageDepart')
             .populate('auteur', 'username');
 
         if (!histoire) {
@@ -60,15 +59,25 @@ exports.commencerHistoire = async (req, res) => {
             });
         }
 
+        // Trouver la page de départ dans les pages embarquées
+        const pageDepart = histoire.pages.id(histoire.pageDepart);
+
+        if (!pageDepart) {
+            return res.status(400).json({
+                success: false,
+                message: 'Page de départ non trouvée'
+            });
+        }
+
         // Incrémenter le compteur
-        histoire.nbFoisCommencee += 1;
+        histoire.statistiques.nbFoisCommencee += 1;
         await histoire.save();
 
         res.json({
             success: true,
             data: {
                 histoire,
-                pageActuelle: histoire.pageDepart
+                pageActuelle: pageDepart
             }
         });
     } catch (error) {
@@ -82,8 +91,18 @@ exports.commencerHistoire = async (req, res) => {
 // Obtenir une page spécifique
 exports.getPage = async (req, res) => {
     try {
-        const page = await Page.findById(req.params.pageId)
-            .populate('choix.pageDestination', 'titre');
+        const { histoireId, pageId } = req.params;
+        
+        const histoire = await Histoire.findById(histoireId);
+
+        if (!histoire) {
+            return res.status(404).json({
+                success: false,
+                message: 'Histoire non trouvée'
+            });
+        }
+
+        const page = histoire.pages.id(pageId);
 
         if (!page) {
             return res.status(404).json({
@@ -110,12 +129,20 @@ exports.terminerPartie = async (req, res) => {
         const { histoireId, pageFinId, parcours } = req.body;
 
         const histoire = await Histoire.findById(histoireId);
-        const pageFin = await Page.findById(pageFinId);
 
-        if (!histoire || !pageFin) {
+        if (!histoire) {
             return res.status(404).json({
                 success: false,
-                message: 'Histoire ou page de fin non trouvée'
+                message: 'Histoire non trouvée'
+            });
+        }
+
+        const pageFin = histoire.pages.id(pageFinId);
+
+        if (!pageFin) {
+            return res.status(404).json({
+                success: false,
+                message: 'Page de fin non trouvée'
             });
         }
 
@@ -138,7 +165,7 @@ exports.terminerPartie = async (req, res) => {
         await partie.save();
 
         // Incrémenter le compteur de parties finies
-        histoire.nbFoisFinie += 1;
+        histoire.statistiques.nbFoisFinie += 1;
         await histoire.save();
 
         res.status(201).json({
@@ -191,8 +218,8 @@ exports.getStatistiquesHistoire = async (req, res) => {
             .populate('pageFin', 'titre texte');
 
         const statistiques = {
-            nbFoisCommencee: histoire.nbFoisCommencee,
-            nbFoisFinie: histoire.nbFoisFinie,
+            nbFoisCommencee: histoire.statistiques.nbFoisCommencee,
+            nbFoisFinie: histoire.statistiques.nbFoisFinie,
             noteMoyenne: histoire.noteMoyenne,
             fins: {}
         };
@@ -212,6 +239,31 @@ exports.getStatistiquesHistoire = async (req, res) => {
         res.json({
             success: true,
             data: statistiques
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
+exports.getHistoireById = async (req, res) => {
+    try {
+        const histoire = await Histoire.findById(req.params.id)
+            .populate('pageDepart')
+            .populate('auteur', 'username');
+
+        if (!histoire) {
+            return res.status(404).json({
+                success: false,
+                message: 'Histoire non trouvée'
+            });
+        }
+        res.json({
+            success: true,
+            data: histoire
         });
     } catch (error) {
         res.status(500).json({
