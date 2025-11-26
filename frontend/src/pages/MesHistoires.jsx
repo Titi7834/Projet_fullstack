@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, reload } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -69,10 +69,9 @@ const MesHistoires = () => {
     try {
       const response = await api.deleteHistoire(id, token);
       const data = await response.json();
+      window.location.reload();
 
-      if (data.success) {
-        loadHistoires();
-      } else {
+      if (!data.success) {
         setError(data.message);
       }
     } catch (err) {

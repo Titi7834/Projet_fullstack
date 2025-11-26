@@ -76,9 +76,9 @@ const register = async (req, res) => {
  */
 const login = async (req, res) => {
     try {
-        const { email, username, password } = req.body;
+        const { emailUsername, password } = req.body;
 
-        const identifier = email || username;
+        const identifier = emailUsername;
 
         if (!identifier || !password) {
             return res.status(400).json({
