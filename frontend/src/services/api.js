@@ -17,11 +17,19 @@ const api = {
     }),
 
   // Histoires publiques
-  getHistoiresPubliees: (search = '') =>
-    fetch(`${API_BASE_URL}/lecteur/histoires?search=${search}`),
+  getHistoiresPubliees: (search = '', theme = '') => {
+    let url = `${API_BASE_URL}/lecteur/histoires?search=${search}`;
+    if (theme) url += `&theme=${theme}`;
+    return fetch(url);
+  },
 
   commencerHistoire: (id, token) =>
     fetch(`${API_BASE_URL}/lecteur/histoires/${id}/commencer`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }),
+
+  reprendrePartie: (id, token) =>
+    fetch(`${API_BASE_URL}/lecteur/histoires/${id}/reprendre`, {
       headers: { 'Authorization': `Bearer ${token}` }
     }),
 
@@ -40,14 +48,57 @@ const api = {
       body: JSON.stringify(data)
     }),
 
+  sauvegarderProgression: (data, token) =>
+    fetch(`${API_BASE_URL}/lecteur/parties/sauvegarder`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify(data)
+    }),
+
   getMesParties: (token) =>
     fetch(`${API_BASE_URL}/lecteur/mes-parties`, {
       headers: { 'Authorization': `Bearer ${token}` }
     }),
 
-  getStatistiquesHistoire: (id, token) =>
-    fetch(`${API_BASE_URL}/lecteur/histoires/${id}/statistiques`, {
+  getStatistiquesHistoire: (id) =>
+    fetch(`${API_BASE_URL}/lecteur/histoires/${id}/statistiques`),
+
+  getFinsDebloquees: (id, token) =>
+    fetch(`${API_BASE_URL}/lecteur/histoires/${id}/fins-debloquees`, {
       headers: { 'Authorization': `Bearer ${token}` }
+    }),
+
+  getStatistiquesParcours: (data, token) =>
+    fetch(`${API_BASE_URL}/lecteur/parties/statistiques-parcours`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify(data)
+    }),
+
+  noterHistoire: (id, data, token) =>
+    fetch(`${API_BASE_URL}/lecteur/histoires/${id}/noter`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify(data)
+    }),
+
+  signalerHistoire: (id, data, token) =>
+    fetch(`${API_BASE_URL}/lecteur/histoires/${id}/signaler`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify(data)
     }),
 
   // Auteur - Histoires

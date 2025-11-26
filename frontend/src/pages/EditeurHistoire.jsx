@@ -20,6 +20,7 @@ const EditeurHistoire = () => {
     titre: '',
     texte: '',
     statutFin: false,
+    labelFin: '',
     choix: []
   });
 
@@ -68,7 +69,8 @@ const EditeurHistoire = () => {
     setPageForm({
       titre: page.titre || '',
       texte: page.texte,
-      statutFin: page.statutFin,
+      statutFin: page.statutFin || false,
+      labelFin: page.labelFin || '',
       choix: page.choix || []
     });
     setShowPageModal(true);
@@ -132,7 +134,7 @@ const EditeurHistoire = () => {
   const addChoix = () => {
     setPageForm({
       ...pageForm,
-      choix: [...pageForm.choix, { texte: '', pageDestination: '' }]
+      choix: [...pageForm.choix, { texte: '', idPageChoix: '' }]
     });
   };
 
@@ -267,6 +269,17 @@ const EditeurHistoire = () => {
                 <label htmlFor="statutFin">Cette page est une fin de l'histoire</label>
               </div>
 
+              {pageForm.statutFin && (
+                <div className="form-group">
+                  <label>Nom de la fin (optionnel)</label>
+                  <input
+                    type="text"
+                    value={pageForm.labelFin}
+                    onChange={(e) => setPageForm({...pageForm, labelFin: e.target.value})}
+                    placeholder="Ex: La victoire héroïque"
+                  />
+                </div>
+              )}
               {!pageForm.statutFin && (
                 <div className="choix-section">
                   <div className="choix-header">
@@ -287,8 +300,8 @@ const EditeurHistoire = () => {
                           required
                         />
                         <select
-                          value={choix.pageDestination}
-                          onChange={(e) => updateChoix(index, 'pageDestination', e.target.value)}
+                          value={choix.idPageChoix}
+                          onChange={(e) => updateChoix(index, 'idPageChoix', e.target.value)}
                           required
                         >
                           <option value="">-- Destination --</option>

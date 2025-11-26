@@ -30,13 +30,14 @@ const Login = () => {
       const response = await api.login(formData);
       const data = await response.json();
 
-      if (data.success) {
+      if (response.ok && data.success) {
         login(data.user, data.token);
         navigate('/');
       } else {
-        setError(data.message || 'Erreur de connexion');
+        setError(data.message || 'Email/username ou mot de passe incorrect');
       }
     } catch (err) {
+      console.error('Erreur login:', err);
       setError('Erreur de connexion au serveur');
     } finally {
       setLoading(false);

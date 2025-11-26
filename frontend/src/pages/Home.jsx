@@ -7,19 +7,22 @@ import './Home.css';
 const Home = () => {
   const [histoires, setHistoires] = useState([]);
   const [search, setSearch] = useState('');
+  const [selectedTheme, setSelectedTheme] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const themes = ['Fantastique', 'Science-Fiction', 'Horreur', 'Aventure', 'Mystère', 'Romance', 'Historique', 'Thriller'];
+
   useEffect(() => {
     loadHistoires();
-  }, []);
+  }, [selectedTheme]);
 
   const loadHistoires = async (searchQuery = '') => {
     try {
       setLoading(true);
-      const response = await api.getHistoiresPubliees(searchQuery);
+      const response = await api.getHistoiresPubliees(searchQuery, selectedTheme);
       const data = await response.json();
       
       if (data.success) {
@@ -37,6 +40,10 @@ const Home = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     loadHistoires(search);
+  };
+
+  const handleThemeFilter = (theme) => {
+    setSelectedTheme(theme === selectedTheme ? '' : theme);
   };
 
   const handleStartHistoire = (id) => {
@@ -58,7 +65,7 @@ const Home = () => {
           </button>
         </div>
         <div className="hero-image">
-          <div className="globe-illustration">🌍</div>
+          <div className="globe-illustration">📖</div>
         </div>
       </section>
 
@@ -76,6 +83,24 @@ const Home = () => {
           />
           <button type="submit" className="btn-search">Rechercher</button>
         </form>
+
+        <div className="theme-filters">
+          <button 
+            className={`theme-btn ${selectedTheme === '' ? 'active' : ''}`}
+            onClick={() => handleThemeFilter('')}
+          >
+            Tous
+          </button>
+          {themes.map((theme) => (
+            <button
+              key={theme}
+              className={`theme-btn ${selectedTheme === theme ? 'active' : ''}`}
+              onClick={() => handleThemeFilter(theme)}
+            >
+              {theme}
+            </button>
+          ))}
+        </div>
 
         {loading ? (
           <div className="loading">Chargement...</div>
