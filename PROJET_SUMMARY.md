@@ -19,25 +19,43 @@ Le projet fullstack de "livres dont vous êtes le héros" est **100% terminé** 
 ### ✅ Fonctionnalités LECTEUR
 - [x] Page d'accueil avec toutes les histoires publiées
 - [x] Recherche d'histoires par titre et tags
-- [x] Affichage des détails (couverture, description, auteur, stats)
+- [x] Filtrage par thème (8 thèmes disponibles)
+- [x] Affichage des détails (couverture, description, auteur, note moyenne)
 - [x] Lecture interactive avec navigation par choix
+- [x] Illustrations sur chaque page (images URL)
+- [x] Auto-sauvegarde automatique (toutes les 30s)
+- [x] Reprise de partie sauvegardée
 - [x] Système de progression page par page
 - [x] Détection et affichage des fins
+- [x] Statistiques de fin (nombre de joueurs ayant eu cette fin)
+- [x] Collection de fins débloquées avec progression
+- [x] Notation et commentaires des histoires (1-5 étoiles)
+- [x] Signalement de contenu inapproprié
 - [x] Enregistrement des parties terminées
-- [x] Statistiques de lecture
+- [x] Page "Mes Lectures" avec historique complet
+- [x] Statistiques personnelles (total terminé, moyenne pages)
 
 ### ✅ Fonctionnalités AUTEUR
 - [x] Dashboard "Mes Histoires"
-- [x] Création de nouvelles histoires
-- [x] Édition des métadonnées (titre, descriptions, tags, couverture)
+- [x] Création de nouvelles histoires avec thème
+- [x] Édition des métadonnées (titre, descriptions, tags, couverture, thème)
 - [x] Éditeur de pages interactives
-- [x] Création de pages avec choix multiples
+- [x] Ajout d'illustrations par URL sur chaque page
+- [x] Création de pages avec titre, texte et choix multiples
 - [x] Système de ramification (choix → page destination)
 - [x] Définition de fins multiples (statutFin)
+- [x] Labellisation des fins (ex: "Fin Héroïque", "Fin Tragique")
 - [x] Définition de la page de départ
+- [x] Mode prévisualisation pour tester sans impact sur les stats
 - [x] Publication des histoires complètes
 - [x] Suppression d'histoires
 - [x] Badge de statut (brouillon/publiée/suspendue)
+- [x] Statistiques avancées :
+  - Taux de complétion (% de fins uniques découvertes)
+  - Distribution des fins avec graphiques en barres
+  - Nombre de lectures et parties terminées
+  - Nombre de parties abandonnées
+  - Note moyenne et nombre d'avis
 
 ### ✅ Fonctionnalités ADMIN
 - [x] Dashboard d'administration à trois onglets
@@ -72,34 +90,45 @@ Le projet fullstack de "livres dont vous êtes le héros" est **100% terminé** 
 
 2. **Histoire** (`src/model/histoire.js`)
    - titre, descriptionCourte, descriptionLongue
-   - imageCouverture, tags[]
+   - imageCouverture, tags[], theme
    - auteur (référence User)
    - statut: brouillon | publiée | suspendue
-   - pages[] (schéma embarqué)
+   - pages[] (schéma embarqué) avec imageUrl et labelFin
    - pageDepart (référence Page)
-   - nbFoisCommencee, nbFoisTerminee
-   - Virtual: noteMoyenne
+   - statistiques:
+     - nbFoisCommencee, nbFoisTerminee
+     - finsAtteintes[] (fins découvertes)
+     - nbFoisAbandon
+     - notesMoyenne, nbAvis
+   - avis[] { userId, note, commentaire, date }
+   - signalements[] { userId, raison, date }
 
 3. **Page** (schéma embarqué dans Histoire)
-   - numero, texte
+   - numero, titre, texte, imageUrl
    - choix[] { texte, pageDestination }
    - statutFin: boolean
+   - labelFin: string (pour les fins)
 
 4. **Lecteur & Partie** (`src/model/lecteur.js`)
    - Partie: lecteur, histoire, pageFin, parcours[]
    - Lecteur: statistiques de lecture
 
+5. **PartieEnCours** (`src/model/partieEnCours.js`)
+   - lecteur, histoire, pageActuelle, parcours[]
+   - derniereModification
+   - Index unique sur {lecteur, histoire}
+
 #### **Contrôleurs** (4 contrôleurs)
 1. **authController.js** - Inscription, connexion
-2. **histoireController.js** - CRUD histoires et pages (11 endpoints)
-3. **lecteurController.js** - Lecture et statistiques (5 endpoints)
+2. **histoireController.js** - CRUD histoires et pages, stats avancées (11+ endpoints)
+3. **lecteurController.js** - Lecture, auto-save, notation, statistiques (10+ endpoints)
 4. **adminController.js** - Modération et stats globales (6 endpoints)
 
 #### **Routes API** (5 fichiers de routes)
 1. `/auth` - Routes publiques d'authentification
-2. `/auteur` - Routes protégées pour auteurs
-3. `/lecteur` - Routes mixtes (publiques + protégées)
-4. `/admin` - Routes protégées pour admins
+2. `/auteur` - Routes protégées pour auteurs (CRUD histoires/pages)
+3. `/lecteur` - Routes protégées pour lecteurs (lecture, stats, notation, historique)
+4. `/admin` - Routes protégées pour admins (modération, statistiques globales)
 5. `/api` - Routes générales protégées
 
 #### **Middleware**
@@ -114,34 +143,41 @@ Le projet fullstack de "livres dont vous êtes le héros" est **100% terminé** 
 
 ### Frontend (React + Vite + React Router)
 
-#### **Pages** (7 pages complètes)
-1. **Home.jsx** - Page d'accueil avec recherche
+#### **Pages** (8 pages complètes)
+1. **Home.jsx** - Page d'accueil avec recherche et filtres par thème
 2. **Login.jsx** - Formulaire de connexion
 3. **Register.jsx** - Formulaire d'inscription
-4. **LecteurHistoire.jsx** - Lecteur d'histoire interactive
-5. **MesHistoires.jsx** - Dashboard auteur
-6. **EditeurHistoire.jsx** - Éditeur de pages/choix
-7. **AdminDashboard.jsx** - Panel d'administration
+4. **LecteurHistoire.jsx** - Lecteur d'histoire interactive avec auto-save
+5. **MesHistoires.jsx** - Dashboard auteur avec statistiques avancées
+6. **MesLectures.jsx** - Historique complet des lectures terminées
+7. **EditeurHistoire.jsx** - Éditeur de pages/choix avec images et labels
+8. **AdminDashboard.jsx** - Panel d'administration
 
 #### **Composants**
 1. **Layout.jsx** - Coquille avec header/footer/navigation
 2. **ProtectedRoute.jsx** - HOC de protection par rôle
+3. **RatingModal.jsx** - Modal de notation des histoires
+4. **ReportModal.jsx** - Modal de signalement de contenu
 
 #### **Services**
-1. **api.js** - 30+ méthodes API organisées par feature
+1. **api.js** - 40+ méthodes API organisées par feature
 
 #### **Context**
 1. **AuthContext.jsx** - État global d'authentification
+2. **ToastContext.jsx** - Système de notifications toast
 
 #### **Styling**
 - **App.css** - Styles globaux (gradient bleu/violet)
 - **Auth.css** - Formulaires login/register
-- **Home.css** - Page d'accueil
-- **LecteurHistoire.css** - Lecteur interactif
-- **MesHistoires.css** - Dashboard auteur
+- **Home.css** - Page d'accueil avec filtres
+- **LecteurHistoire.css** - Lecteur interactif avec modals
+- **MesHistoires.css** - Dashboard auteur avec graphiques
+- **MesLectures.css** - Historique de lecture responsive
 - **EditeurHistoire.css** - Éditeur complexe
 - **AdminDashboard.css** - Panel admin
 - **Layout.css** - Navigation
+- **RatingModal.css** - Styles modal notation
+- **ReportModal.css** - Styles modal signalement
 
 ---
 
@@ -174,7 +210,7 @@ backend/auth-service/
 └── package.json ✅ EXISTANT
 ```
 
-### Frontend (20 fichiers)
+### Frontend (26+ fichiers)
 ```
 frontend/
 ├── src/
@@ -182,35 +218,44 @@ frontend/
 │   │   ├── Login.jsx ✅ CRÉÉ
 │   │   ├── Register.jsx ✅ CRÉÉ
 │   │   ├── Auth.css ✅ CRÉÉ
-│   │   ├── Home.jsx ✅ CRÉÉ
-│   │   ├── Home.css ✅ CRÉÉ
-│   │   ├── LecteurHistoire.jsx ✅ CRÉÉ
-│   │   ├── LecteurHistoire.css ✅ CRÉÉ
-│   │   ├── MesHistoires.jsx ✅ CRÉÉ
-│   │   ├── MesHistoires.css ✅ CRÉÉ
-│   │   ├── EditeurHistoire.jsx ✅ CRÉÉ
+│   │   ├── Home.jsx ✅ CRÉÉ (avec filtres thème)
+│   │   ├── Home.css ✅ CRÉÉ (responsive)
+│   │   ├── LecteurHistoire.jsx ✅ CRÉÉ (auto-save, stats, modals)
+│   │   ├── LecteurHistoire.css ✅ CRÉÉ (avec modals)
+│   │   ├── MesHistoires.jsx ✅ CRÉÉ (stats avancées)
+│   │   ├── MesHistoires.css ✅ CRÉÉ (graphiques)
+│   │   ├── MesLectures.jsx ✅ CRÉÉ (historique)
+│   │   ├── MesLectures.css ✅ CRÉÉ (responsive)
+│   │   ├── EditeurHistoire.jsx ✅ CRÉÉ (images, labels)
 │   │   ├── EditeurHistoire.css ✅ CRÉÉ
 │   │   ├── AdminDashboard.jsx ✅ CRÉÉ
 │   │   └── AdminDashboard.css ✅ CRÉÉ
 │   ├── components/
-│   │   ├── Layout.jsx ✅ CRÉÉ
+│   │   ├── Layout.jsx ✅ CRÉÉ (avec lien Mes Lectures)
 │   │   ├── Layout.css ✅ CRÉÉ
-│   │   └── ProtectedRoute.jsx ✅ CRÉÉ
+│   │   ├── ProtectedRoute.jsx ✅ CRÉÉ
+│   │   ├── RatingModal.jsx ✅ CRÉÉ
+│   │   ├── RatingModal.css ✅ CRÉÉ
+│   │   ├── ReportModal.jsx ✅ CRÉÉ
+│   │   └── ReportModal.css ✅ CRÉÉ
 │   ├── context/
-│   │   └── AuthContext.jsx ✅ CRÉÉ
+│   │   ├── AuthContext.jsx ✅ CRÉÉ
+│   │   └── ToastContext.jsx ✅ CRÉÉ
 │   ├── services/
-│   │   └── api.js ✅ CRÉÉ
-│   ├── App.jsx ✅ CRÉÉ (routing complet)
+│   │   └── api.js ✅ CRÉÉ (40+ méthodes)
+│   ├── App.jsx ✅ CRÉÉ (routing complet + route /mes-lectures)
 │   └── App.css ✅ MODIFIÉ (thème gradient)
 ├── .env ✅ CRÉÉ
 └── package.json ✅ EXISTANT
 ```
 
-### Documentation (3 fichiers)
+### Documentation (5 fichiers)
 ```
-├── README.md ✅ CRÉÉ (documentation complète)
-├── QUICKSTART.md ✅ CRÉÉ (guide de démarrage rapide)
-└── PROJET_SUMMARY.md ✅ CRÉÉ (ce fichier)
+├── README.md ✅ MODIFIÉ (nouvelles fonctionnalités documentées)
+├── QUICKSTART.md ✅ MODIFIÉ (histoires complexes documentées)
+├── NOUVELLES_FONCTIONNALITES.md ✅ MODIFIÉ (12 fonctionnalités + corrections bugs)
+├── PROJET_SUMMARY.md ✅ MODIFIÉ (ce fichier)
+└── RESPONSIVE.md ✅ EXISTANT
 ```
 
 ---
@@ -227,19 +272,34 @@ frontend/
 
 ### 3 Histoires Pré-créées
 
-#### 1. **L'Île aux Mystères** (Alice - Publiée)
-- **Genre** : Aventure, Mystère, Survie
-- **Pages** : 10 pages
-- **Fins** : 3 fins différentes (heureuse, moyenne, game over)
-- **Description** : Naufragé sur une île tropicale mystérieuse
-- **Stats** : 45 lectures commencées, 32 terminées
+#### 1. **La Prophétie du Dragon d'Émeraude** (Alice - Publiée)
+- **Genre** : Fantastique
+- **Pages** : 15 pages avec titres et images
+- **Fins** : 8 fins différentes
+  - Paix Parfaite (choix diplomatique + compagnon sage)
+  - Mort Héroïque (combat contre dragon, victoire ultime)
+  - Chute du Royaume (mauvais choix stratégiques)
+  - Alliance du Dragon (diplomatie réussie)
+  - Sacrifice Noble (sauver le compagnon)
+  - Trahison du Compagnon (confiance mal placée)
+  - Victoire Pyrrhique (victoire à grand coût)
+  - Fuite Honteuse (abandon de la quête)
+- **Description** : Épopée fantastique avec choix de compagnon et embranchements complexes
+- **Embranchements** : Combat vs Diplomatie, choix de compagnon (guerrier/mage/sage)
 
-#### 2. **Le Manoir Hanté de Blackwood** (Bob - Publiée)
-- **Genre** : Horreur, Fantastique, Suspense
-- **Pages** : 10 pages
-- **Fins** : 3 fins différentes (parfaite, moyenne, game over)
-- **Description** : Passer une nuit dans un manoir hanté pour gagner 1M€
-- **Stats** : 78 lectures commencées, 45 terminées
+#### 2. **Le Laboratoire Oublié - Projet Pandora** (Bob - Publiée)
+- **Genre** : Science-Fiction
+- **Pages** : 12 pages avec dilemmes moraux
+- **Fins** : 7 fins différentes
+  - Alliance avec l'IA (coopération)
+  - Destruction Totale (sécurité maximale)
+  - Sacrifice Ultime (sauver l'humanité)
+  - Fuite du Laboratoire (abandon de mission)
+  - Contrôle Militaire (approche autoritaire)
+  - Libération Éthique (approche morale)
+  - Corruption par l'IA (compromis moral)
+- **Description** : Thriller sci-fi sur l'éthique de l'IA avec profils de décisions
+- **Système** : Profil Scientifique/Militaire/Éthique influençant les options
 
 #### 3. **Mission Mars Alpha** (Alice - Brouillon)
 - **Genre** : Science-fiction, Espace, Stratégie

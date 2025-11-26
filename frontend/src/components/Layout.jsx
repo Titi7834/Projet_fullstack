@@ -21,6 +21,7 @@ const Layout = () => {
             {user ? (
               <>
                 <span className="user-info">Bonjour, {user.username}</span>
+                <Link to="/mes-lectures" className="nav-link">Mes Lectures</Link>
                 {isAuteur() && (
                   <Link to="/mes-histoires" className="nav-link">Mes Histoires</Link>
                 )}

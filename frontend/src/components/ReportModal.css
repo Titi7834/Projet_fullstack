@@ -187,3 +187,44 @@
     width: 100%;
   }
 }
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 1.25rem;
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .modal-close {
+    font-size: 1.5rem;
+    width: 28px;
+    height: 28px;
+  }
+
+  .report-options {
+    gap: 0.75rem;
+  }
+
+  .report-option label {
+    font-size: 0.95rem;
+    padding: 0.875rem;
+  }
+
+  .form-group label {
+    font-size: 0.95rem;
+  }
+
+  .form-group textarea {
+    font-size: 0.95rem;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+  }
+}

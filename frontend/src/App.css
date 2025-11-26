@@ -49,3 +49,43 @@ input, textarea, select {
   font-size: 1.2rem;
   color: rgba(255, 255, 255, 0.8);
 }
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem 1rem;
+  }
+
+  body {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+
+  body {
+    font-size: 13px;
+  }
+
+  .loading {
+    padding: 2rem;
+    font-size: 1rem;
+  }
+}
+
+/* Prevent horizontal overflow */
+body, html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Improve touch targets on mobile */
+@media (max-width: 768px) {
+  button, a, input[type="checkbox"], input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

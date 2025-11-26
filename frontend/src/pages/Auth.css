@@ -125,3 +125,63 @@
   border-radius: 5px;
   margin-bottom: 1rem;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 1.5rem;
+  }
+
+  .auth-card {
+    padding: 2rem 1.5rem;
+    width: 95%;
+  }
+
+  .auth-header h1 {
+    font-size: 2rem;
+  }
+
+  .auth-form input,
+  .auth-form select {
+    font-size: 0.95rem;
+  }
+
+  .auth-submit {
+    font-size: 1rem;
+    padding: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 1rem;
+  }
+
+  .auth-card {
+    padding: 1.75rem 1.25rem;
+    width: 100%;
+  }
+
+  .auth-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .auth-header p {
+    font-size: 0.9rem;
+  }
+
+  .auth-form input,
+  .auth-form select {
+    padding: 0.875rem;
+    font-size: 0.9rem;
+  }
+
+  .auth-submit {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .auth-link {
+    font-size: 0.9rem;
+  }
+}

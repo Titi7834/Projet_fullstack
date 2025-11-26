@@ -144,6 +144,16 @@ const api = {
       headers: { 'Authorization': `Bearer ${token}` }
     }),
 
+  getStatsAvancees: (id, token) =>
+    fetch(`${API_BASE_URL}/auteur/histoires/${id}/stats-avancees`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }),
+
+  previewHistoire: (id, token) =>
+    fetch(`${API_BASE_URL}/auteur/histoires/${id}/preview`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }),
+
   // Pages
   getPagesHistoire: (id, token) =>
     fetch(`${API_BASE_URL}/auteur/${id}/pages`, {

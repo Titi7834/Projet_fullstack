@@ -331,4 +331,72 @@
   .page-actions {
     flex-wrap: wrap;
   }
+
+  .modal-large {
+    max-width: 95%;
+    margin: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .editeur-container {
+    padding: 0.5rem;
+  }
+
+  .editeur-header {
+    padding: 1.5rem;
+  }
+
+  .editeur-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .btn-new-page,
+  .btn-back {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .page-card {
+    padding: 1.25rem;
+  }
+
+  .page-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .page-actions button {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.85rem;
+  }
+
+  .choix-item {
+    padding: 0.75rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+  }
+
+  .modal-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .form-group label {
+    font-size: 0.95rem;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
 }

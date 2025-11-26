@@ -196,13 +196,45 @@ exports.terminerPartie = async (req, res) => {
 exports.getMesParties = async (req, res) => {
     try {
         const parties = await Partie.find({ lecteur: req.user._id })
-            .populate('histoire', 'titre descriptionCourte')
-            .populate('pageFin', 'titre texte')
+            .populate({
+                path: 'histoire',
+                select: 'titre descriptionCourte pages',
+                populate: {
+                    path: 'pages'
+                }
+            })
             .sort({ createdAt: -1 });
+
+        // Enrichir les parties avec les informations de la page de fin
+        const partiesEnrichies = parties.map(partie => {
+            const partieObj = partie.toObject();
+            
+            if (partieObj.histoire && partieObj.histoire.pages && partieObj.pageFin) {
+                const pageFin = partieObj.histoire.pages.find(
+                    p => p._id.toString() === partieObj.pageFin.toString()
+                );
+                
+                if (pageFin) {
+                    partieObj.pageFin = {
+                        _id: pageFin._id,
+                        titre: pageFin.titre,
+                        labelFin: pageFin.labelFin,
+                        texte: pageFin.texte
+                    };
+                }
+            }
+            
+            // Nettoyer pour ne pas renvoyer toutes les pages
+            if (partieObj.histoire) {
+                delete partieObj.histoire.pages;
+            }
+            
+            return partieObj;
+        });
 
         res.json({
             success: true,
-            data: parties
+            data: partiesEnrichies
         });
     } catch (error) {
         res.status(500).json({

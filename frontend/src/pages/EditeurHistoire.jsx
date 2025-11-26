@@ -19,6 +19,7 @@ const EditeurHistoire = () => {
   const [pageForm, setPageForm] = useState({
     titre: '',
     texte: '',
+    imageUrl: '',
     statutFin: false,
     labelFin: '',
     choix: []
@@ -60,7 +61,7 @@ const EditeurHistoire = () => {
 
   const handleCreatePage = () => {
     setSelectedPage(null);
-    setPageForm({ titre: '', texte: '', statutFin: false, choix: [] });
+    setPageForm({ titre: '', texte: '', imageUrl: '', statutFin: false, labelFin: '', choix: [] });
     setShowPageModal(true);
   };
 
@@ -69,6 +70,7 @@ const EditeurHistoire = () => {
     setPageForm({
       titre: page.titre || '',
       texte: page.texte,
+      imageUrl: page.imageUrl || '',
       statutFin: page.statutFin || false,
       labelFin: page.labelFin || '',
       choix: page.choix || []
@@ -256,6 +258,16 @@ const EditeurHistoire = () => {
                   required
                   rows={8}
                   placeholder="Écrivez ici..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label>URL de l'illustration (optionnel)</label>
+                <input
+                  type="url"
+                  value={pageForm.imageUrl}
+                  onChange={(e) => setPageForm({...pageForm, imageUrl: e.target.value})}
+                  placeholder="https://exemple.com/image.jpg"
                 />
               </div>
 

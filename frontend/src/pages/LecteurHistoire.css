@@ -4,6 +4,18 @@
   padding: 2rem;
 }
 
+.preview-banner {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+}
+
 .lecteur-header {
   text-align: center;
   margin-bottom: 3rem;
@@ -39,6 +51,22 @@
   font-size: 1.8rem;
   margin-bottom: 1.5rem;
   text-align: center;
+}
+
+.page-image {
+  margin: 2rem 0;
+  text-align: center;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.page-image img {
+  max-width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .page-texte {
@@ -155,6 +183,114 @@
   margin-top: 1rem;
 }
 
+/* Statistiques en fin de partie */
+.statistiques-parcours,
+.statistiques-avancees {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.statistiques-parcours h4,
+.statistiques-avancees h4 {
+  color: white;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.statistiques-parcours h5,
+.statistiques-avancees h5 {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin: 1rem 0 0.75rem 0;
+}
+
+.statistiques-parcours p {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+.stats-message {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  font-size: 0.95rem !important;
+}
+
+.stats-grid-lecteur {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+.stat-value {
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.distribution-fins-lecteur {
+  margin-top: 1.5rem;
+}
+
+.fin-item-lecteur {
+  margin-bottom: 1rem;
+}
+
+.fin-item-lecteur .fin-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.fin-item-lecteur .fin-bar-container {
+  position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  height: 32px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fin-item-lecteur .fin-bar {
+  background: linear-gradient(90deg, #4CAF50, #66BB6A);
+  height: 100%;
+  transition: width 0.5s ease;
+  border-radius: 8px;
+}
+
+.fin-item-lecteur .fin-count {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
 /* Section des commentaires */
 .commentaire-showing {
   margin-top: 3rem;
@@ -261,5 +397,79 @@
 
   .game-over-actions {
     flex-direction: column;
+  }
+
+  .page-image img {
+    max-height: 250px;
+  }
+
+  .comments-section {
+    padding: 1.5rem;
+  }
+
+  .preview-banner {
+    font-size: 0.95rem;
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .lecteur-container {
+    padding: 0.5rem;
+  }
+
+  .lecteur-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .lecteur-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .page-titre {
+    font-size: 1.3rem;
+  }
+
+  .page-texte {
+    font-size: 0.95rem;
+    text-align: left;
+  }
+
+  .page-image img {
+    max-height: 200px;
+  }
+
+  .btn-choix {
+    padding: 0.875rem;
+    font-size: 0.95rem;
+  }
+
+  .game-over h2 {
+    font-size: 1.8rem;
+  }
+
+  .statistiques-parcours {
+    padding: 1rem;
+  }
+
+  .statistiques-parcours h4 {
+    font-size: 1rem;
+  }
+
+  .stat-item {
+    font-size: 0.9rem;
+  }
+
+  .comments-list {
+    gap: 1rem;
+  }
+
+  .comment-item {
+    padding: 1rem;
+  }
+
+  .preview-banner {
+    font-size: 0.85rem;
+    padding: 0.65rem;
   }
 }

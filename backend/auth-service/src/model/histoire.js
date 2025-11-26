@@ -24,6 +24,17 @@ const pageSchema = new mongoose.Schema({
         required: [true, 'Le texte de la page est obligatoire'],
         trim: true
     },
+    imageUrl: {
+        type: String,
+        trim: true,
+        validate: {
+            validator: function(v) {
+                if (!v) return true; // Optional field
+                return /^https?:\/\/.+/.test(v); // Must be a valid URL if provided
+            },
+            message: 'L\'URL de l\'image doit être valide'
+        }
+    },
     statutFin: {
         type: Boolean,
         default: false

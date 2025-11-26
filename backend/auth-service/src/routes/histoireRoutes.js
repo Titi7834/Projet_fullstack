@@ -15,6 +15,10 @@ router.put('/:id', histoireController.updateHistoire);
 router.delete('/:id', histoireController.deleteHistoire);
 router.patch('/:id/publish', histoireController.publishHistoire);
 
+// Stats avancées et preview
+router.get('/histoires/:id/stats-avancees', histoireController.getStatsAvancees);
+router.get('/histoires/:id/preview', histoireController.previewHistoire);
+
 // Gestion des pages
 router.get('/:id/pages', histoireController.getPagesHistoire);
 router.post('/:id/pages', histoireController.createPage);

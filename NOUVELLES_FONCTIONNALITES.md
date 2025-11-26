@@ -38,13 +38,17 @@
   - `GET /lecteur/histoires/:id/reprendre` - Récupère la partie sauvegardée
 - **Cleanup:** La sauvegarde s'arrête automatiquement à la fin de l'histoire
 
-### 5. 📊 Statistiques de Parcours
-**Localisation:** Affichées à la fin d'une histoire
+### 5. 📊 Statistiques de Fin (Lecteurs)
+**Localisation:** Affichées à la fin d'une histoire (`LecteurHistoire.jsx`)
 
-- **Similarité:** Calcul du pourcentage de similitude avec les autres joueurs
-- **Affichage:** "Vous avez suivi le même chemin que X% des autres joueurs"
-- **Backend:** `POST /lecteur/parties/statistiques-parcours`
-- **Algorithme:** Compare le parcours du joueur avec tous les parcours enregistrés
+- **Affichage:** Statistiques spécifiques à la fin atteinte par le joueur
+- **Données:** 
+  - Nombre de joueurs ayant eu cette fin
+  - Pourcentage par rapport au total de parties terminées
+  - Message personnalisé avec le label de la fin
+- **Backend:** `GET /lecteur/histoires/:id/stats-avancees`
+- **Interface:** Graphique en barre montrant la popularité de la fin
+- **Exemple:** "42% des joueurs ont atteint cette fin (15 joueurs sur 36)"
 
 ### 6. 🏆 Collection de Fins Débloquées
 **Localisation:** Affichées à la fin d'une histoire
@@ -56,12 +60,90 @@
 - **Affichage:** Icône ✓ pour chaque fin débloquée
 
 ### 7. 🏷️ Labellisation des Fins (Éditeur)
-**Status:** Prêt à implémenter dans `EditeurHistoire.jsx`
+**Status:** Implémenté dans `EditeurHistoire.jsx`
 
 - **Champ:** `labelFin` ajouté au schéma des pages (maxLength: 100 caractères)
 - **UI:** Input text conditionnel affiché quand `statutFin = true`
 - **Exemples:** "Victoire héroïque", "Défaite honorable", "Fin mystérieuse", etc.
 - **Utilisation:** Les fins nommées apparaissent dans la collection des fins débloquées
+
+### 8. 📚 Page "Mes Lectures"
+**Localisation:** Nouvelle page (`MesLectures.jsx`) accessible via la navigation
+
+- **Interface:** Dashboard complet de l'historique de lecture
+- **Statistiques personnelles:**
+  - Nombre total d'histoires terminées
+  - Moyenne de pages visitées par histoire
+- **Liste des parties terminées:**
+  - Titre de l'histoire avec image
+  - Date de complétion
+  - Description courte
+  - Nombre de pages visitées
+  - Fin atteinte (avec label)
+  - Bouton "Rejouer cette histoire"
+- **Backend:** `GET /lecteur/mes-parties` - Récupère toutes les parties terminées
+- **Responsive:** Design adapté mobile, tablette, desktop
+- **Route:** `/mes-lectures` (protégée, accessible à tous les utilisateurs)
+
+### 9. 📈 Statistiques Avancées (Auteurs)
+**Localisation:** Page "Mes Histoires" (`MesHistoires.jsx`)
+
+- **Taux de complétion redéfini:**
+  - **Ancienne formule:** (nbFins / nbLectures) × 100 (% de parties finies)
+  - **Nouvelle formule:** (nbFinsAtteintes / nbFinsTotal) × 100 (% de fins découvertes)
+  - **Exemple:** Histoire avec 8 fins, 4 découvertes = 50% de complétion
+- **Distribution des fins:** 
+  - Graphiques en barres pour chaque fin
+  - Nombre de joueurs par fin
+  - Pourcentage de chaque fin
+  - Protection contre division par zéro
+- **Statistiques globales:**
+  - Nombre de lectures (nbFoisCommencee)
+  - Nombre de parties terminées (nbFoisTerminee)
+  - Nombre de parties abandonnées
+  - Note moyenne et nombre d'avis
+- **Backend:** `GET /lecteur/histoires/:id/stats-avancees` mis à jour
+
+### 10. 🌟 Mode Prévisualisation Auteur
+**Localisation:** Page de lecture (`LecteurHistoire.jsx`)
+
+- **Activation:** Paramètre `?preview=true` dans l'URL
+- **Comportement:**
+  - Désactivation de l'auto-sauvegarde
+  - Aucun impact sur les statistiques de l'histoire
+  - Banner "MODE PRÉVISUALISATION" affiché en haut
+  - Les parties en mode prévisualisation ne sont pas enregistrées
+- **Utilisation:** Permet aux auteurs de tester leurs histoires avant publication
+
+### 11. 🖼️ Illustrations de Pages
+**Localisation:** Éditeur d'histoire (`EditeurHistoire.jsx`) et lecteur (`LecteurHistoire.jsx`)
+
+- **Éditeur:** Champ `imageUrl` pour chaque page
+- **Format:** URL vers une image (validation basique)
+- **Affichage:** Image responsive dans le lecteur d'histoire
+- **Optionnel:** Les pages peuvent avoir ou non une image
+- **Stockage:** Champ `imageUrl` dans le schéma Page (maxLength: 500)
+
+### 12. 📖 Histoires Complexes (Seed Data)
+**Localisation:** `backend/auth-service/seed.js`
+
+- **Histoire 1:** "La Prophétie du Dragon d'Émeraude"
+  - Theme: Fantastique
+  - 15 pages avec titres et images
+  - 8 fins différentes (Paix Parfaite, Mort Héroïque, Chute du Royaume, etc.)
+  - Embranchements complexes (choix de compagnon, combat vs diplomatie)
+  
+- **Histoire 2:** "Le Laboratoire Oublié - Projet Pandora"
+  - Theme: Science-Fiction
+  - 12 pages avec dilemmes moraux
+  - 7 fins différentes (Alliance IA, Destruction, Sacrifice Ultime, etc.)
+  - Système de profil (Scientifique/Militaire/Éthique)
+  
+- **Caractéristiques:**
+  - Branches multiples avec conséquences
+  - Labels de fin personnalisés
+  - Images pour chaque page
+  - Textes riches et immersifs
 
 ## 📁 Nouveaux Fichiers Créés
 
@@ -83,8 +165,20 @@
 4. **`frontend/src/components/ReportModal.css`**
    - Styles pour le modal de signalement
 
+5. **`frontend/src/pages/MesLectures.jsx`**
+   - Page complète d'historique de lecture
+   - Statistiques personnelles (total terminé, moyenne pages)
+   - Liste de toutes les parties terminées avec détails
+   - Bouton "Rejouer" pour chaque histoire
+
+6. **`frontend/src/pages/MesLectures.css`**
+   - Styles complets pour la page Mes Lectures
+   - Design responsive (mobile, tablette, desktop)
+   - Cards avec hover effects
+   - Grid layouts pour stats et parties
+
 ### Modèles Backend
-5. **`backend/auth-service/src/model/partieEnCours.js`**
+7. **`backend/auth-service/src/model/partieEnCours.js`**
    - Nouveau modèle pour auto-save
    - Index unique sur {lecteur, histoire}
    - Champs: pageActuelle, parcours[], derniereModification
@@ -92,37 +186,126 @@
 ## 🔄 Fichiers Modifiés
 
 ### Backend
-- `src/model/histoire.js` - Ajout labelFin, amélioration commentaires
-- `src/controllers/lecteurController.js` - 6 nouveaux endpoints (~300 lignes)
-- `src/routes/lecteurRoutes.js` - 6 nouvelles routes
+- **`src/model/histoire.js`**
+  - Ajout `labelFin` pour les pages (fins nommées)
+  - Ajout `imageUrl` pour les pages (illustrations)
+  - Ajout `theme` pour les histoires (filtrage)
+  - Ajout `avis[]` pour les notations et commentaires
+  - Ajout `finsAtteintes[]` dans statistiques (tracking fins découvertes)
+  
+- **`src/controllers/lecteurController.js`**
+  - `getHistoiresPubliees` - Filtrage par thème
+  - `noterHistoire` - Système de notation et commentaires
+  - `signalerHistoire` - Signalement de contenu
+  - `sauvegarderPartie` - Auto-sauvegarde
+  - `reprendrePartie` - Reprise partie en cours
+  - `getStatsAvancees` - Statistiques avancées (MODIFIÉ: nouveau calcul taux complétion)
+  - `getMesParties` - Historique de lecture (NOUVEAU)
+  - `getFinsDébloquées` - Liste des fins atteintes par le joueur
+  
+- **`src/controllers/histoireController.js`**
+  - `getStatsAvancees` - Ajout calcul distribution des fins
+  - Taux de complétion redéfini: (nbFinsAtteintes / nbFinsTotal) × 100
+  
+- **`src/routes/lecteurRoutes.js`**
+  - 8 nouvelles routes pour les fonctionnalités étendues
+  
+- **`seed.js`**
+  - Complètement réécrit (543 lignes)
+  - 2 histoires complexes avec multiples embranchements
+  - 15 et 12 pages avec titres et images
+  - 8 et 7 fins différentes avec labels
 
 ### Frontend
-- `src/services/api.js` - 7 nouvelles méthodes API
-- `src/pages/Home.jsx` - Filtres par thème
-- `src/pages/Home.css` - Styles pour filtres
-- `src/pages/LecteurHistoire.jsx` - Auto-save, modals, stats (NOTE: fichier hors workspace, modifications à appliquer manuellement)
+- **`src/services/api.js`**
+  - 10 nouvelles méthodes API pour toutes les fonctionnalités
+  
+- **`src/pages/Home.jsx`**
+  - Filtres par thème (8 thèmes disponibles)
+  - Affichage note moyenne sur cartes
+  
+- **`src/pages/Home.css`**
+  - Styles pour boutons de filtre
+  - Design responsive pour grille de filtres
+  
+- **`src/pages/LecteurHistoire.jsx`**
+  - Auto-sauvegarde toutes les 30s
+  - Modals de notation et signalement
+  - Statistiques de fin (uniquement la fin atteinte)
+  - Fins débloquées
+  - Mode prévisualisation
+  - Boutons dans header
+  
+- **`src/pages/LecteurHistoire.css`**
+  - Styles pour modals
+  - Banner mode prévisualisation
+  - Section statistiques avec graphiques
+  
+- **`src/pages/MesHistoires.jsx`**
+  - Affichage des statistiques avancées redéfinies
+  - Distribution des fins avec graphiques en barres
+  - Protection division par zéro
+  
+- **`src/pages/EditeurHistoire.jsx`**
+  - Champ `labelFin` pour les fins
+  - Champ `imageUrl` pour les pages
+  - Champ `theme` pour l'histoire
+  
+- **`src/App.jsx`**
+  - Route `/mes-lectures` (protégée)
+  
+- **`src/components/Layout.jsx`**
+  - Lien navigation "Mes Lectures"
 
-## 🎯 Prochaines Étapes
+## 🐛 Corrections de Bugs
 
-### À Implémenter dans EditeurHistoire.jsx
-```jsx
-// Ajouter dans le formulaire de page, après le checkbox statutFin:
-{pageForm.statutFin && (
-  <div className="form-group">
-    <label htmlFor="labelFin">Nom de cette fin (optionnel)</label>
-    <input
-      type="text"
-      id="labelFin"
-      value={pageForm.labelFin || ''}
-      onChange={(e) => setPageForm({...pageForm, labelFin: e.target.value})}
-      placeholder="Ex: Fin héroïque, Fin tragique..."
-      maxLength="100"
-    />
-  </div>
-)}
-```
+### 1. Statistiques ne s'affichent pas après complétion
+- **Problème:** `setGameOver(true)` appelé avant le chargement des statistiques
+- **Solution:** Déplacer `setGameOver(true)` dans le callback de `terminerPartie` après `loadStatsAvancees`
+- **Fichier:** `LecteurHistoire.jsx`
+- **Lignes:** 185-200
 
-### À Ajouter dans pageForm initial state:
+### 2. Barres de distribution des fins à 0%
+- **Problème:** Division par zéro + données non chargées
+- **Solution:** 
+  - Charger `statsAvancees` au lieu de `statistiquesParcours`
+  - Protection contre division par zéro dans calcul largeur barre
+- **Fichier:** `MesHistoires.jsx`
+- **Résultat:** Graphiques correctement affichés avec pourcentages
+
+### 3. Endpoint getMesParties erreur 500
+- **Problème:** `.populate('pageFin')` sur modèle Page inexistant
+- **Solution:** Populate `histoire` avec `pages` subdocuments, rechercher `pageFin` manuellement
+- **Fichier:** `lecteurController.js` lignes 196-240
+- **Code:** Parcourir `histoire.pages` pour trouver la page correspondant à `partie.pageFin`
+
+### 4. Variable `statsAvancees` non définie
+- **Problème:** État React manquant dans `LecteurHistoire.jsx`
+- **Solution:** Ajout de `const [statsAvancees, setStatsAvancees] = useState(null);`
+- **Fichier:** `LecteurHistoire.jsx` ligne 21-25
+
+### 5. Erreur 500 sur getStatsAvancees
+- **Problème:** Variables `nbLectures` et `nbFins` utilisées mais non définies
+- **Solution:** Ajout des variables avant utilisation dans réponse JSON
+- **Fichier:** `histoireController.js` lignes 408-415
+
+### 6. Seed.js code dupliqué
+- **Problème:** Remplacement partiel créant du code en double
+- **Solution:** Réécriture complète du fichier avec structure propre
+- **Fichier:** `seed.js` (543 lignes)
+
+## 🎯 Fonctionnalités Futures Potentielles
+
+### Ideas pour Extensions
+- [ ] Upload d'images direct (pas uniquement URL)
+- [ ] Système de badges/achievements pour les lecteurs
+- [ ] Graphe visuel de l'arbre de l'histoire dans l'éditeur
+- [ ] Export PDF des histoires complètes
+- [ ] Statistiques de temps de lecture moyen
+- [ ] Mode sombre
+- [ ] Partage social des fins débloquées
+- [ ] Système de favoris/bookmarks
+- [ ] Recommandations d'histoires basées sur l'historique
 ```jsx
 const [pageForm, setPageForm] = useState({
   titre: '',

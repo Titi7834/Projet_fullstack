@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import RatingModal from '../components/RatingModal';
@@ -8,6 +8,8 @@ import './LecteurHistoire.css';
 
 const LecteurHistoire = () => {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const isPreviewMode = searchParams.get('preview') === 'true';
   const { token } = useAuth();
   const navigate = useNavigate();
   const [histoire, setHistoire] = useState(null);
@@ -19,6 +21,7 @@ const LecteurHistoire = () => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [statistiquesParcours, setStatistiquesParcours] = useState(null);
+  const [statsAvancees, setStatsAvancees] = useState(null);
   const [finsDebloquees, setFinsDebloquees] = useState([]);
   const [resuming, setResuming] = useState(false);
   const autoSaveIntervalRef = useRef(null);
@@ -29,14 +32,21 @@ const LecteurHistoire = () => {
       navigate('/login');
       return;
     }
+    // Skip saved game check in preview mode
+    if (isPreviewMode) {
+      commencerHistoire();
+      return;
+    }
     if (!hasCheckedSavedGame.current) {
       hasCheckedSavedGame.current = true;
       checkForSavedGame();
     }
   }, [id, token]);
 
-  // Auto-save every 30 seconds
+  // Auto-save every 30 seconds (disabled in preview mode)
   useEffect(() => {
+    if (isPreviewMode) return; // No auto-save in preview mode
+    
     if (pageActuelle && !gameOver && parcours.length > 0) {
       autoSaveIntervalRef.current = setInterval(() => {
         sauvegarderProgression();
@@ -48,7 +58,7 @@ const LecteurHistoire = () => {
         clearInterval(autoSaveIntervalRef.current);
       }
     };
-  }, [pageActuelle, parcours, gameOver]);
+  }, [pageActuelle, parcours, gameOver, isPreviewMode]);
 
   const checkForSavedGame = async () => {
     try {
@@ -152,7 +162,6 @@ const LecteurHistoire = () => {
 
         // Vérifier si c'est une fin
         if (nouvellePage.statutFin) {
-          setGameOver(true);
           await terminerPartie(nouvellePage._id);
         }
       }
@@ -162,6 +171,12 @@ const LecteurHistoire = () => {
   };
 
   const terminerPartie = async (pageFinId) => {
+    // Skip in preview mode
+    if (isPreviewMode) {
+      setGameOver(true);
+      return;
+    }
+    
     try {
       // Arrêter l'auto-save
       if (autoSaveIntervalRef.current) {
@@ -174,23 +189,28 @@ const LecteurHistoire = () => {
         parcours
       }, token);
       
-      // Charger statistiques et fins débloquées
-      const [statsRes, finsRes] = await Promise.all([
-        api.getStatistiquesParcours({ histoireId: id, parcours }, token),
+      // Charger statistiques avancées et fins débloquées
+      const [statsAvanceesRes, finsRes] = await Promise.all([
+        api.getStatsAvancees(id, token),
         api.getFinsDebloquees(id, token)
       ]);
     
-    const statsData = await statsRes.json();
+    const statsAvanceesData = await statsAvanceesRes.json();
     const finsData = await finsRes.json();
     
-    if (statsData.success) {
-      setStatistiquesParcours(statsData.data);
+    if (statsAvanceesData.success) {
+      setStatsAvancees(statsAvanceesData.data);
     }
     if (finsData.success) {
       setFinsDebloquees(finsData.data.finsDebloquees);
     }
+    
+    // Afficher l'écran de fin APRÈS avoir chargé les stats
+    setGameOver(true);
   } catch (err) {
     console.error('Erreur lors de l\'enregistrement de la partie');
+    // Afficher quand même l'écran de fin en cas d'erreur
+    setGameOver(true);
   }
 };
 
@@ -198,6 +218,9 @@ const recommencer = () => {
   setParcours([]);
   setGameOver(false);
   setStatistiquesParcours(null);
+  setStatsAvancees(null);
+  setFinsDebloquees([]);
+  commencerHistoire();
   setFinsDebloquees([]);
   commencerHistoire();
 };
@@ -216,6 +239,12 @@ const recommencer = () => {
 
   return (
     <div className="lecteur-container">
+      {isPreviewMode && (
+        <div className="preview-banner">
+          👁️ MODE PRÉVISUALISATION - Les statistiques ne seront pas enregistrées
+        </div>
+      )}
+      
       <div className="lecteur-header">
         <h1>{histoire.titre}</h1>
         <p className="auteur">Par {histoire.auteur?.username}</p>
@@ -234,6 +263,11 @@ const recommencer = () => {
           {pageActuelle.titre && (
             <h2 className="page-titre">{pageActuelle.titre}</h2>
           )}
+          {pageActuelle.imageUrl && (
+            <div className="page-image">
+              <img src={pageActuelle.imageUrl} alt="Illustration" />
+            </div>
+          )}
           <div className="page-texte">
             {pageActuelle.texte}
           </div>
@@ -245,10 +279,36 @@ const recommencer = () => {
             {pageActuelle.labelFin && <h3>{pageActuelle.labelFin}</h3>}
             <p>Vous avez atteint une fin !</p>
             
-            {statistiquesParcours && (
-              <div className="statistiques-parcours">
-                <h4>Statistiques de votre parcours :</h4>
-                <p>Similarité avec les autres lecteurs : {statistiquesParcours.pourcentageSimilarite}%</p>
+            {statsAvancees && statsAvancees.distributionFins && (
+              <div className="statistiques-avancees">
+                <h4>📊 Statistique de cette fin :</h4>
+                {(() => {
+                  const finActuelle = statsAvancees.distributionFins.find(
+                    f => f.pageId === pageActuelle._id
+                  );
+                  if (finActuelle) {
+                    const totalFins = statsAvancees.nbFins || 1;
+                    const percentage = (finActuelle.count / totalFins) * 100;
+                    return (
+                      <div className="fin-item-lecteur">
+                        <span className="fin-label">{finActuelle.label || pageActuelle.labelFin || 'Cette fin'}</span>
+                        <div className="fin-bar-container">
+                          <div 
+                            className="fin-bar" 
+                            style={{width: `${percentage}%`}}
+                          ></div>
+                          <span className="fin-count">{finActuelle.count} joueur{finActuelle.count > 1 ? 's' : ''} ({percentage.toFixed(0)}%)</span>
+                        </div>
+                        <p className="stats-message">
+                          {finActuelle.count === 1 
+                            ? "Vous êtes le premier à atteindre cette fin !" 
+                            : `${finActuelle.count} joueur${finActuelle.count > 1 ? 's ont' : ' a'} atteint cette fin`}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             )}
             

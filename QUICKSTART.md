@@ -58,7 +58,12 @@ npm run dev
 cd backend/auth-service
 node seed.js
 ```
-✅ Données de démo créées
+✅ Données de démo créées :
+- 4 utilisateurs (ADMIN, 2 AUTEURS, 1 LECTEUR)
+- 2 histoires complètes publiées :
+  - "La Prophétie du Dragon d'Émeraude" (Fantasy, 15 pages, 8 fins)
+  - "Le Laboratoire Oublié - Projet Pandora" (Sci-Fi, 12 pages, 7 fins)
+- 1 histoire en brouillon
 
 **Terminal 3 - Frontend :**
 ```powershell
@@ -112,8 +117,39 @@ Ouvrez http://localhost:5173 et connectez-vous avec :
 
 ## 📚 Prochaines étapes
 
-1. **Tester en tant que LECTEUR** : Lire une histoire interactive
-2. **Tester en tant qu'AUTEUR** : Créer votre première histoire
-3. **Tester en tant qu'ADMIN** : Gérer les utilisateurs et histoires
+1. **Tester en tant que LECTEUR** :
+   - Lire une histoire interactive avec choix multiples
+   - Découvrir les différentes fins possibles
+   - Consulter "Mes Lectures" pour voir votre historique
+   - Noter et commenter les histoires
+   
+2. **Tester en tant qu'AUTEUR** :
+   - Créer votre première histoire avec titre, description, thème
+   - Ajouter des pages avec texte, images (URL) et choix
+   - Définir des fins avec labels personnalisés
+   - Prévisualiser l'histoire avant publication
+   - Consulter les statistiques avancées (taux de complétion, distribution des fins)
+   
+3. **Tester en tant qu'ADMIN** :
+   - Gérer les utilisateurs (bannir, changer rôles)
+   - Suspendre des histoires signalées
+   - Consulter les statistiques globales de la plateforme
+
+### Fonctionnalités à explorer
+
+**Pour les Lecteurs :**
+- 🔍 Filtrage par thème (8 thèmes disponibles)
+- 💾 Auto-sauvegarde (toutes les 30s) et reprise de partie
+- 📊 Statistiques de fin après complétion
+- 🏆 Collection de fins débloquées
+- ⭐ Notation et commentaires
+- 📚 Historique complet dans "Mes Lectures"
+
+**Pour les Auteurs :**
+- 🖼️ Ajout d'illustrations par URL sur chaque page
+- 🏷️ Labels personnalisés pour chaque fin
+- 🌟 Mode prévisualisation pour tester sans impact sur les stats
+- 📈 Taux de complétion : % de fins uniques découvertes
+- 📊 Distribution des fins avec graphiques en barres
 
 Amusez-vous bien ! 🎉

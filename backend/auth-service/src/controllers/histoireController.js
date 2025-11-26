@@ -1,4 +1,6 @@
 const { Histoire } = require('../model/histoire');
+const { Partie } = require('../model/lecteur');
+const { PartieEnCours } = require('../model/partieEnCours');
 
 // Créer une nouvelle histoire
 exports.createHistoire = async (req, res) => {
@@ -35,6 +37,14 @@ exports.getMesHistoires = async (req, res) => {
         const histoires = await Histoire.find({ auteur: req.user._id })
             .sort({ createdAt: -1 })
             .populate('pageDepart');
+
+        if (histoires.length === 0) {
+            return res.status(200).json({
+                success: true,
+                data: [],
+                message: 'Aucune histoire trouvée'
+            });
+        }
 
         res.json({
             success: true,
@@ -128,8 +138,11 @@ exports.deleteHistoire = async (req, res) => {
             });
         }
 
-        // Supprimer toutes les pages associées
-        await Page.deleteMany({ histoire: req.params.id });
+        // Supprimer toutes les parties terminées et en cours associées
+        await Promise.all([
+            Partie.deleteMany({ histoire: req.params.id }),
+            PartieEnCours.deleteMany({ histoire: req.params.id })
+        ]);
 
         res.json({
             success: true,
@@ -342,3 +355,128 @@ exports.deletePage = async (req, res) => {
         });
     }
 };
+
+// Obtenir les statistiques avancées d'une histoire (pour l'auteur)
+exports.getStatsAvancees = async (req, res) => {
+    try {
+        const { Partie } = require('../model/lecteur');
+        const { PartieEnCours } = require('../model/partieEnCours');
+        
+        const histoire = await Histoire.findOne({
+            _id: req.params.id,
+            auteur: req.user._id
+        });
+
+        if (!histoire) {
+            return res.status(404).json({
+                success: false,
+                message: 'Histoire non trouvée ou vous n\'êtes pas l\'auteur'
+            });
+        }
+
+        // Parties terminées
+        const partiesTerminees = await Partie.find({ histoire: req.params.id });
+        
+        // Parties abandonnées (en cours mais pas terminées)
+        const partiesAbandonneesCount = await PartieEnCours.countDocuments({ 
+            histoire: req.params.id 
+        });
+
+        // Distribution par fin
+        const distributionFins = {};
+        const pagesFinales = histoire.pages.filter(p => p.statutFin);
+        
+        pagesFinales.forEach(page => {
+            const label = page.labelFin || page.titre || 'Fin sans nom';
+            distributionFins[label] = {
+                pageId: page._id,
+                count: 0,
+                label
+            };
+        });
+
+        partiesTerminees.forEach(partie => {
+            const pageFin = histoire.pages.id(partie.pageFin);
+            if (pageFin) {
+                const label = pageFin.labelFin || pageFin.titre || 'Fin sans nom';
+                if (distributionFins[label]) {
+                    distributionFins[label].count++;
+                }
+            }
+        });
+
+        // Taux de complétion = pourcentage des fins différentes atteintes au moins une fois
+        const nbLectures = histoire.statistiques.nbFoisCommencee;
+        const nbFins = histoire.statistiques.nbFoisFinie;
+        const nbFinsTotal = pagesFinales.length;
+        const nbFinsAtteintes = Object.values(distributionFins).filter(fin => fin.count > 0).length;
+        const tauxCompletion = nbFinsTotal > 0 ? ((nbFinsAtteintes / nbFinsTotal) * 100).toFixed(1) : 0;
+
+        res.json({
+            success: true,
+            data: {
+                nbLectures,
+                nbFins,
+                nbPartiesAbandonees: partiesAbandonneesCount,
+                tauxCompletion: parseFloat(tauxCompletion),
+                distributionFins: Object.values(distributionFins),
+                noteMoyenne: histoire.noteMoyenne,
+                nbCommentaires: histoire.commentaires.length
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// Mode preview pour l'auteur (ne compte pas dans les stats)
+exports.previewHistoire = async (req, res) => {
+    try {
+        const histoire = await Histoire.findOne({
+            _id: req.params.id,
+            auteur: req.user._id
+        }).populate('auteur', 'username');
+
+        if (!histoire) {
+            return res.status(404).json({
+                success: false,
+                message: 'Histoire non trouvée ou vous n\'êtes pas l\'auteur'
+            });
+        }
+
+        if (!histoire.pageDepart) {
+            return res.status(400).json({
+                success: false,
+                message: 'Cette histoire n\'a pas de page de départ'
+            });
+        }
+
+        const pageDepart = histoire.pages.id(histoire.pageDepart);
+
+        if (!pageDepart) {
+            return res.status(400).json({
+                success: false,
+                message: 'Page de départ non trouvée'
+            });
+        }
+
+        // Ne pas incrémenter les statistiques en mode preview
+        res.json({
+            success: true,
+            data: {
+                histoire,
+                pageActuelle: pageDepart,
+                previewMode: true
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+

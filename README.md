@@ -5,23 +5,84 @@ Application web fullstack de "livres dont vous êtes le héros" avec trois types
 ## 🎯 Fonctionnalités
 
 ### Pour les Lecteurs (LECTEUR)
-- ✅ Parcourir les histoires publiées avec recherche par titre/tags
+- ✅ Parcourir les histoires publiées avec recherche par titre/tags et filtrage par thème
 - ✅ Lire des histoires interactives avec choix multiples
-- ✅ Suivre sa progression dans chaque histoire
-- ✅ Découvrir les différentes fins possibles
+- ✅ Système d'auto-sauvegarde automatique (toutes les 30s)
+- ✅ Reprendre une partie sauvegardée
+- ✅ Découvrir les différentes fins possibles avec statistiques
+- ✅ Voir les fins débloquées après complétion
+- ✅ Historique complet de toutes les parties terminées ("Mes Lectures")
+- ✅ Statistiques de fin : nombre de joueurs ayant atteint chaque fin
+- ✅ Noter et commenter les histoires
+- ✅ Signaler du contenu inapproprié
+- ✅ Mode prévisualisation pour les auteurs
 
 ### Pour les Auteurs (AUTEUR)
 - ✅ Créer et gérer ses propres histoires
 - ✅ Éditeur de pages avec système de choix ramifiés
-- ✅ Définir plusieurs fins possibles
+- ✅ Ajouter des illustrations par URL sur chaque page
+- ✅ Définir plusieurs fins possibles avec labels personnalisés
 - ✅ Publier les histoires complètes
-- ✅ Voir les statistiques de lecture
+- ✅ Statistiques avancées :
+  - Nombre de lectures et de parties terminées
+  - Taux de complétion (% de fins différentes découvertes)
+  - Distribution des fins atteintes (avec graphiques en barres)
+  - Nombre de parties abandonnées
+  - Note moyenne et nombre d'avis
+- ✅ Mode prévisualisation pour tester avant publication
+- ✅ Gestion des commentaires et avis
 
 ### Pour les Administrateurs (ADMIN)
 - ✅ Bannir/débannir des utilisateurs
 - ✅ Changer les rôles des utilisateurs
 - ✅ Suspendre/réactiver des histoires
 - ✅ Voir les statistiques globales de la plateforme
+
+## 🆕 Nouvelles Fonctionnalités (Dernière mise à jour)
+
+### Auto-sauvegarde et Reprise
+- Sauvegarde automatique de la progression toutes les 30 secondes
+- Popup au démarrage pour reprendre une partie en cours
+- Nettoyage des sauvegardes après complétion
+
+### Statistiques Avancées
+- **Taux de complétion** : Pourcentage des fins uniques découvertes par les joueurs
+- **Distribution des fins** : Graphiques montrant combien de joueurs ont atteint chaque fin
+- **Fins débloquées** : Liste des fins que chaque joueur a découvertes
+- **Statistiques en fin de partie** : Affichage du nombre de joueurs ayant eu la même fin
+
+### Mode Prévisualisation
+- Les auteurs peuvent tester leurs histoires sans affecter les statistiques
+- Banner distinctif en mode prévisualisation
+- Auto-sauvegarde désactivée en mode prévisualisation
+
+### Illustrations
+- Ajout d'images par URL sur chaque page
+- Affichage responsive des illustrations
+- Validation des URLs d'image
+
+### Système de Notation et Commentaires
+- Les lecteurs peuvent noter les histoires (1-5 étoiles)
+- Ajout de commentaires textuels
+- Affichage de la note moyenne et des avis sur chaque histoire
+- Visualisation des commentaires en bas de page de lecture
+
+### Signalement de Contenu
+- Système de report pour signaler du contenu inapproprié
+- Modal de signalement avec choix de raison
+
+### Page "Mes Lectures"
+- Historique complet de toutes les parties terminées
+- Statistiques personnelles (nombre d'histoires terminées, moyenne de pages)
+- Détails de chaque partie (date, fin atteinte, nombre de pages visitées)
+- Bouton pour rejouer les histoires
+
+### Interface Utilisateur Améliorée
+- **Toasts notifications** : Messages de succès/erreur/avertissement non-intrusifs
+- **Modals de confirmation** : Confirmation avant suppression d'histoires
+- **Design responsive complet** : Support mobile, tablette et desktop
+- **Badges de statut** : Indicateurs visuels pour brouillon/publié/suspendu
+- **Graphiques de distribution** : Barres de progression pour les statistiques
 
 ## 🛠️ Technologies Utilisées
 
@@ -35,8 +96,9 @@ Application web fullstack de "livres dont vous êtes le héros" avec trois types
 ### Frontend
 - **React** 18 avec **Vite** 7.2.4
 - **React Router DOM** pour le routing
+- **Context API** pour la gestion de l'état global (Auth + Toast)
 - **Fetch API** pour les requêtes HTTP
-- **Context API** pour la gestion de l'état global
+- **CSS3** avec Media Queries pour le responsive
 
 ## 📦 Installation
 
@@ -96,8 +158,12 @@ Cela crée :
   - `alice@example.com` / `password123` (AUTEUR)
   - `bob@example.com` / `password123` (AUTEUR)
   - `charlie@example.com` / `password123` (LECTEUR)
-- **2 histoires publiées** complètes avec plusieurs fins
+- **2 histoires publiées** complètes avec plusieurs fins :
+  - **"La Prophétie du Dragon d'Émeraude"** : Fantasy épique, 15 pages, 8 fins différentes
+  - **"Le Laboratoire Oublié - Projet Pandora"** : Sci-Fi éthique, 12 pages, 7 fins différentes
 - **1 histoire en brouillon**
+
+Les histoires contiennent des embranchements complexes avec plusieurs chemins et conséquences.
 
 ### 4. Lancer le Frontend
 ```powershell
@@ -119,19 +185,25 @@ L'application s'ouvre sur http://localhost:5173
 ### Scénarios de test
 
 #### En tant que Lecteur
-1. Page d'accueil : voir les histoires publiées
-2. Utiliser la barre de recherche pour filtrer
+1. Page d'accueil : voir les histoires publiées avec filtres par thème
+2. Utiliser la barre de recherche pour filtrer par titre/tags
 3. Cliquer sur "Commencer l'aventure" sur une histoire
-4. Faire des choix pour progresser
-5. Atteindre une fin pour terminer la partie
+4. Si une partie est en cours, choisir "Reprendre" ou "Recommencer"
+5. Faire des choix pour progresser (auto-sauvegarde toutes les 30s)
+6. Atteindre une fin pour terminer la partie et voir les statistiques
+7. Noter et commenter l'histoire après l'avoir terminée
+8. Consulter "Mes Lectures" pour voir l'historique de toutes les parties finies
 
 #### En tant qu'Auteur
 1. Aller dans "Mes Histoires"
-2. Créer une nouvelle histoire
+2. Créer une nouvelle histoire avec titre, description, thème
 3. Cliquer sur "Éditer" pour créer des pages
-4. Ajouter des pages avec des choix
-5. Définir une page de départ
-6. Publier l'histoire quand elle est complète
+4. Ajouter des pages avec texte, image (URL optionnelle) et choix
+5. Définir des fins avec labels personnalisés (ex: "Fin Héroïque")
+6. Définir une page de départ
+7. Utiliser "Prévisualiser" pour tester l'histoire sans affecter les stats
+8. Publier l'histoire quand elle est complète
+9. Consulter les statistiques avancées (taux de complétion, distribution des fins)
 
 #### En tant qu'Admin
 1. Aller dans "Administration"
@@ -187,6 +259,8 @@ Projet_Fullstack/
     │   │   ├── LecteurHistoire.css
     │   │   ├── MesHistoires.jsx
     │   │   ├── MesHistoires.css
+    │   │   ├── MesLectures.jsx
+    │   │   ├── MesLectures.css
     │   │   ├── EditeurHistoire.jsx
     │   │   ├── EditeurHistoire.css
     │   │   ├── AdminDashboard.jsx
@@ -217,22 +291,31 @@ Projet_Fullstack/
 
 ### Histoire
 - titre, descriptionCourte, descriptionLongue
-- imageCouverture, tags[]
+- imageCouverture, tags[], theme
 - auteur (ref User)
 - statut: brouillon | publiée | suspendue
-- pages[] (embedded)
+- pages[] (embedded) avec imageUrl optionnelle
 - pageDepart (ref Page)
-- statistiques (nbFoisCommencee, nbFoisTerminee)
+- statistiques:
+  - nbFoisCommencee (nombre de parties commencées)
+  - nbFoisTerminee (nombre de parties finies)
+  - finsAtteintes[] (liste des fins découvertes par les joueurs)
+  - nbFoisAbandon (nombre de parties abandonnées)
+  - notesMoyenne (moyenne des notes)
+  - nbAvis (nombre d'avis)
+- avis[] { userId, note (1-5), commentaire, date }
 
 ### Page
-- numero, texte
+- numero, titre, texte, imageUrl (optionnelle)
 - choix[] { texte, pageDestination }
 - statutFin: boolean
+- labelFin (pour les fins, ex: "Fin Héroïque")
 
 ### Lecteur & Partie
-- Tracking des parties terminées
+- Tracking des parties terminées avec pageFin
 - Parcours complet (suite de pages visitées)
-- Statistiques de complétion
+- Auto-sauvegarde toutes les 30 secondes
+- Statistiques de complétion par joueur
 
 ## 🎨 Design
 
@@ -274,14 +357,14 @@ npm run preview # Preview du build
 
 ## 🚧 Améliorations Futures
 
-- [ ] Upload d'images pour les couvertures
-- [ ] Système de notation/commentaires
-- [ ] Statistiques détaillées par histoire (graphiques)
+- [ ] Upload d'images pour les couvertures (actuellement via URL uniquement)
 - [ ] Éditeur visuel de graphe de pages
 - [ ] Export/import d'histoires (JSON)
 - [ ] Mode hors ligne (PWA)
 - [ ] Notifications en temps réel
 - [ ] Traduction multilingue
+- [ ] Système de badges/achievements pour les lecteurs
+- [ ] Générateur de PDF pour imprimer les histoires
 
 ## 📄 Licence
 
