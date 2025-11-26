@@ -28,23 +28,31 @@ const pageSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    labelFin: {
+        type: String,
+        trim: true,
+        maxlength: [100, 'Le label de fin ne peut pas dépasser 100 caractères']
+    },
     choix: [choixSchema]
 }, { _id: true, timestamps: true });
 
 // Schéma pour les commentaires
 const commentaireSchema = new mongoose.Schema({
-    commentaires: {
-        type: String,
-        trim: true
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
-    notes: {
+    commentaire: {
+        type: String,
+        trim: true,
+        maxlength: [1000, 'Le commentaire ne peut pas dépasser 1000 caractères']
+    },
+    note: {
         type: Number,
+        required: true,
         min: 1,
         max: 5
-    },
-    idHistoire: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Histoire'
     }
 }, { _id: true, timestamps: true });
 
@@ -117,7 +125,7 @@ const histoireSchema = new mongoose.Schema({
 // Calculer la note moyenne
 histoireSchema.virtual('noteMoyenne').get(function() {
     if (!this.commentaires || this.commentaires.length === 0) return 0;
-    const notesValides = this.commentaires.filter(c => c.notes).map(c => c.notes);
+    const notesValides = this.commentaires.filter(c => c.note).map(c => c.note);
     if (notesValides.length === 0) return 0;
     const sum = notesValides.reduce((acc, note) => acc + note, 0);
     return Math.round((sum / notesValides.length) * 10) / 10;

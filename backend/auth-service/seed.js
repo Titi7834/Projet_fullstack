@@ -1,6 +1,5 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 const User = require('./src/model/user');
 const { Histoire } = require('./src/model/histoire');
 
@@ -15,34 +14,32 @@ async function seedDatabase() {
     await Histoire.deleteMany({});
     console.log('🗑️  Base de données nettoyée');
 
-    // Créer des utilisateurs
-    const hashedPassword = await bcrypt.hash('password123', 10);
-    
+    // Créer des utilisateurs (le mot de passe sera haché automatiquement par le hook pre-save)
     const admin = await User.create({
       username: 'admin',
       email: 'admin@example.com',
-      password: hashedPassword,
+      password: 'password123',
       role: 'ADMIN'
     });
 
     const auteur1 = await User.create({
       username: 'auteur_alice',
       email: 'alice@example.com',
-      password: hashedPassword,
+      password: 'password123',
       role: 'AUTEUR'
     });
 
     const auteur2 = await User.create({
       username: 'auteur_bob',
       email: 'bob@example.com',
-      password: hashedPassword,
+      password: 'password123',
       role: 'AUTEUR'
     });
 
     const lecteur1 = await User.create({
       username: 'lecteur_charlie',
       email: 'charlie@example.com',
-      password: hashedPassword,
+      password: 'password123',
       role: 'LECTEUR'
     });
 
@@ -105,36 +102,49 @@ async function seedDatabase() {
           _id: page1Ids.p4,
           texte: "Dans la grotte, vous trouvez un abri sûr. Vous survivez jusqu'au sauvetage !",
           statutFin: true,
+          labelFin: "Survie dans la grotte",
           choix: []
         },
         {
           _id: page1Ids.p5,
           texte: "Vous trouvez une source d'eau et construisez un campement. Sauvé !",
           statutFin: true,
+          labelFin: "Campement de survie",
           choix: []
         },
         {
           _id: page1Ids.p6,
           texte: "L'eau était contaminée. Vous tombez malade... Game Over.",
           statutFin: true,
+          labelFin: "Mort par empoisonnement",
           choix: []
         },
         {
           _id: page1Ids.p7,
           texte: "Vous découvrez des ruines anciennes avec des provisions. Vous survivez !",
           statutFin: true,
+          labelFin: "Découverte des ruines",
           choix: []
         },
         {
           _id: page1Ids.p8,
           texte: "Vous vous perdez dans la jungle... Game Over.",
           statutFin: true,
+          labelFin: "Perdu dans la jungle",
           choix: []
         }
       ],
       commentaires: [
-        { commentaires: "Super histoire !", notes: 5 },
-        { commentaires: "Très immersif", notes: 4 }
+        { 
+          userId: lecteur1._id,
+          note: 5,
+          commentaire: "Super histoire !"
+        },
+        { 
+          userId: auteur2._id,
+          note: 4,
+          commentaire: "Très immersif"
+        }
       ]
     });
 
@@ -181,23 +191,30 @@ async function seedDatabase() {
           _id: page2Ids.p3,
           texte: "Le salon révèle un journal intime. Vous découvrez la vérité sur la famille et levez la malédiction. Vous gagnez le million !",
           statutFin: true,
+          labelFin: "Victoire - Malédiction levée",
           choix: []
         },
         {
           _id: page2Ids.p4,
           texte: "Un fantôme apparaît... Votre cœur lâche. Game Over.",
           statutFin: true,
+          labelFin: "Mort de peur",
           choix: []
         },
         {
           _id: page2Ids.p5,
           texte: "Vous survivez jusqu'au matin, traumatisé mais riche !",
           statutFin: true,
+          labelFin: "Survie traumatisante",
           choix: []
         }
       ],
       commentaires: [
-        { commentaires: "Flippant !", notes: 5 }
+        { 
+          userId: lecteur1._id,
+          note: 5,
+          commentaire: "Flippant !"
+        }
       ]
     });
 
