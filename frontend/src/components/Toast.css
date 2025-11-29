@@ -117,3 +117,111 @@
     font-size: 1.25rem;
   }
 }
+
+/* Confirm Toast Styles */
+.confirm-toast-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10002;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.confirm-toast {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  min-width: 300px;
+  max-width: 500px;
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.confirm-toast p {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.confirm-toast-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.confirm-toast-btn {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 100px;
+}
+
+.confirm-toast-yes {
+  background: linear-gradient(135deg, #34a853 0%, #2d8e47 100%);
+  color: white;
+}
+
+.confirm-toast-yes:hover {
+  background: linear-gradient(135deg, #2d8e47 0%, #34a853 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 168, 83, 0.4);
+}
+
+.confirm-toast-no {
+  background: linear-gradient(135deg, #ea4335 0%, #c5221f 100%);
+  color: white;
+}
+
+.confirm-toast-no:hover {
+  background: linear-gradient(135deg, #c5221f 0%, #ea4335 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(234, 67, 53, 0.4);
+}
+
+@media (max-width: 480px) {
+  .confirm-toast {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  .confirm-toast p {
+    font-size: 1rem;
+  }
+
+  .confirm-toast-btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}

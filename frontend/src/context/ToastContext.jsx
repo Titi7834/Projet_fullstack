@@ -13,6 +13,7 @@ export const useToast = () => {
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+  const [confirmToast, setConfirmToast] = useState(null);
 
   const showToast = (message, type = 'info', duration = 3000) => {
     const id = Date.now();
@@ -23,8 +24,21 @@ export const ToastProvider = ({ children }) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   };
 
+  const showConfirmToast = (message) => {
+    return new Promise((resolve) => {
+      setConfirmToast({ message, resolve });
+    });
+  };
+
+  const handleConfirmResponse = (response) => {
+    if (confirmToast) {
+      confirmToast.resolve(response);
+      setConfirmToast(null);
+    }
+  };
+
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={{ showToast, showConfirmToast }}>
       {children}
       <div className="toast-container">
         {toasts.map(toast => (
@@ -37,6 +51,27 @@ export const ToastProvider = ({ children }) => {
           />
         ))}
       </div>
+      {confirmToast && (
+        <div className="confirm-toast-overlay">
+          <div className="confirm-toast">
+            <p>{confirmToast.message}</p>
+            <div className="confirm-toast-buttons">
+              <button 
+                className="confirm-toast-btn confirm-toast-yes"
+                onClick={() => handleConfirmResponse(true)}
+              >
+                Oui
+              </button>
+              <button 
+                className="confirm-toast-btn confirm-toast-no"
+                onClick={() => handleConfirmResponse(false)}
+              >
+                Non
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </ToastContext.Provider>
   );
 };

@@ -19,6 +19,11 @@ const pageSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Histoire'
     },
+    titre: {
+        type: String,
+        trim: true,
+        maxlength: [200, 'Le titre de la page ne peut pas dépasser 200 caractères']
+    },
     texte: {
         type: String,
         required: [true, 'Le texte de la page est obligatoire'],

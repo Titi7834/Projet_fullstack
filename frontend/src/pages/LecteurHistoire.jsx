@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import api from '../services/api';
 import RatingModal from '../components/RatingModal';
 import ReportModal from '../components/ReportModal';
@@ -11,6 +12,7 @@ const LecteurHistoire = () => {
   const [searchParams] = useSearchParams();
   const isPreviewMode = searchParams.get('preview') === 'true';
   const { token } = useAuth();
+  const { showToast, showConfirmToast } = useToast();
   const navigate = useNavigate();
   const [histoire, setHistoire] = useState(null);
   const [pageActuelle, setPageActuelle] = useState(null);
@@ -24,7 +26,6 @@ const LecteurHistoire = () => {
   const [statsAvancees, setStatsAvancees] = useState(null);
   const [finsDebloquees, setFinsDebloquees] = useState([]);
   const [resuming, setResuming] = useState(false);
-  const autoSaveIntervalRef = useRef(null);
   const hasCheckedSavedGame = useRef(false);
 
   useEffect(() => {
@@ -43,22 +44,6 @@ const LecteurHistoire = () => {
     }
   }, [id, token]);
 
-  // Auto-save every 30 seconds (disabled in preview mode)
-  useEffect(() => {
-    if (isPreviewMode) return; // No auto-save in preview mode
-    
-    if (pageActuelle && !gameOver && parcours.length > 0) {
-      autoSaveIntervalRef.current = setInterval(() => {
-        sauvegarderProgression();
-      }, 30000); // 30 seconds
-    }
-
-    return () => {
-      if (autoSaveIntervalRef.current) {
-        clearInterval(autoSaveIntervalRef.current);
-      }
-    };
-  }, [pageActuelle, parcours, gameOver, isPreviewMode]);
 
   const checkForSavedGame = async () => {
     try {
@@ -66,13 +51,14 @@ const LecteurHistoire = () => {
       const data = await response.json();
 
       if (response.ok && data.success && data.data) {
-        const shouldResume = confirm('Vous avez une partie sauvegardée. Voulez-vous la reprendre ?');
+        const shouldResume = await showConfirmToast('Vous avez une partie sauvegardée. Voulez-vous la reprendre ?');
         if (shouldResume) {
           setResuming(true);
           setHistoire(data.data.histoire);
           setPageActuelle(data.data.pageActuelle);
           setParcours(data.data.parcours);
           setLoading(false);
+          showToast('Partie chargée avec succès !', 'success');
           return;
         }
       }
@@ -158,6 +144,7 @@ const LecteurHistoire = () => {
       if (data.success) {
         const nouvellePage = data.data;
         setPageActuelle(nouvellePage);
+        sauvegarderProgression();
         setParcours([...parcours, nouvellePage._id]);
 
         // Vérifier si c'est une fin
@@ -178,11 +165,7 @@ const LecteurHistoire = () => {
     }
     
     try {
-      // Arrêter l'auto-save
-      if (autoSaveIntervalRef.current) {
-        clearInterval(autoSaveIntervalRef.current);
-      }
-      
+            
       await api.terminerPartie({
         histoireId: id,
         pageFinId,

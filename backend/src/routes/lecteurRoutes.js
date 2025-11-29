@@ -19,7 +19,6 @@ router.post('/histoires/:id/noter', lecteurController.noterHistoire);
 router.post('/histoires/:id/signaler', lecteurController.signalerHistoire);
 router.post('/parties/terminer', lecteurController.terminerPartie);
 router.post('/parties/sauvegarder', lecteurController.sauvegarderProgression);
-router.post('/parties/statistiques-parcours', lecteurController.getStatistiquesParcours);
 router.get('/mes-parties', lecteurController.getMesParties);
 
 module.exports = router;

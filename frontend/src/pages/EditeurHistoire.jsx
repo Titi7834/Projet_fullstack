@@ -249,7 +249,6 @@ const EditeurHistoire = () => {
                   onChange={(e) => setPageForm({...pageForm, titre: e.target.value})}
                 />
               </div>
-
               <div className="form-group">
                 <label>Texte de la page *</label>
                 <textarea

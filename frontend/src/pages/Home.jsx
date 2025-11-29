@@ -60,9 +60,6 @@ const Home = () => {
       <section className="hero">
         <div className="hero-content">
           <h1>Not another hero's book</h1>
-          <button className="btn-connect" onClick={() => navigate('/login')}>
-            Se connecter
-          </button>
         </div>
         <div className="hero-image">
           <div className="globe-illustration">📖</div>

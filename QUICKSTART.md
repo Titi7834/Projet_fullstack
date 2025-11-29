@@ -15,7 +15,7 @@ mongod --version
 
 **Backend :**
 ```powershell
-cd backend/auth-service
+cd backend
 npm install
 ```
 
@@ -27,7 +27,7 @@ npm install
 
 ### 3️⃣ Configuration
 
-Le fichier `.env` existe déjà dans `backend/auth-service/` avec :
+Le fichier `.env` existe déjà dans `backend/` avec :
 - PORT=3000
 - MONGODB_URI=mongodb://localhost:27017/histoires-interactives
 - JWT_SECRET=votre_secret_jwt
@@ -48,14 +48,14 @@ Modifiez `MONGODB_URI` dans `.env` avec votre URL de connexion Atlas.
 
 **Terminal 1 - Backend :**
 ```powershell
-cd backend/auth-service
+cd backend
 npm run dev
 ```
 ✅ Backend tourne sur http://localhost:3000
 
 **Terminal 2 - Seed (première fois seulement) :**
 ```powershell
-cd backend/auth-service
+cd backend
 node seed.js
 ```
 ✅ Données de démo créées :
@@ -139,7 +139,7 @@ Ouvrez http://localhost:5173 et connectez-vous avec :
 
 **Pour les Lecteurs :**
 - 🔍 Filtrage par thème (8 thèmes disponibles)
-- 💾 Auto-sauvegarde (toutes les 30s) et reprise de partie
+- 💾 Auto-sauvegarde à chaque choix et reprise de partie
 - 📊 Statistiques de fin après complétion
 - 🏆 Collection de fins débloquées
 - ⭐ Notation et commentaires

@@ -1,18 +1,4 @@
-const jwt = require('jsonwebtoken');
-const User = require('../model/user');
-const bcrypt = require('bcrypt');
-
-require('dotenv').config();
-
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
-
-/**
- * Générer un JWT token
- */
-const generateToken = (userId) => {
-    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-};
+const authService = require('../services/authService');
 
 /**
  * POST /auth/register
@@ -29,41 +15,22 @@ const register = async (req, res) => {
             });
         }
 
-        const existingUser = await User.findByEmailOrUsername(email);
-        if (existingUser) {
-            return res.status(409).json({
-                success: false,
-                message: 'Cet email ou nom d\'utilisateur est déjà utilisé'
-            });
-        }
-
-        const newUser = new User({
+        const result = await authService.registerUser({
             email,
             username,
-            password: await bcrypt.hash(password, 10),
+            password,
             role: role && ['LECTEUR', 'AUTEUR', 'ADMIN'].includes(role) ? role : 'LECTEUR'
         });
-
-        await newUser.save();
-
-        const token = generateToken(newUser._id);
 
         res.status(201).json({
             success: true,
             message: 'Utilisateur créé avec succès',
-            token,
-            user: {
-                id: newUser._id,
-                email: newUser.email,
-                username: newUser.username,
-                role: newUser.role,
-                statutBanni: newUser.statutBanni,
-                createdAt: newUser.createdAt
-            }
+            token: result.token,
+            user: result.user
         });
     } catch (error) {
         console.error('Erreur lors de l\'enregistrement:', error);
-        res.status(500).json({
+        res.status(error.statusCode || 500).json({
             success: false,
             message: error.message || 'Erreur lors de l\'enregistrement'
         });
@@ -87,40 +54,17 @@ const login = async (req, res) => {
             });
         }
 
-        const user = await User.findByEmailOrUsername(identifier).select('+password');
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: 'Email/username ou mot de passe incorrect'
-            });
-        }
-
-        const isPasswordValid = await user.comparePassword(password);
-        if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                message: 'Email/username ou mot de passe incorrect'
-            });
-        }
-
-        const token = generateToken(user._id);
+        const result = await authService.loginUser({ identifier, password });
 
         res.status(200).json({
             success: true,
             message: 'Connexion réussie',
-            token,
-            user: {
-                id: user._id,
-                email: user.email,
-                username: user.username,
-                role: user.role,
-                statutBanni: user.statutBanni,
-                createdAt: user.createdAt
-            }
+            token: result.token,
+            user: result.user
         });
     } catch (error) {
         console.error('Erreur lors de la connexion:', error);
-        res.status(500).json({
+        res.status(error.statusCode || 500).json({
             success: false,
             message: error.message || 'Erreur lors de la connexion'
         });
@@ -133,18 +77,12 @@ const login = async (req, res) => {
  */
 const getMe = async (req, res) => {
     try {
-        const user = await User.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'Utilisateur non trouvé'
-            });
-        }
+        const user = await authService.getUserById(req.user.userId);
 
         res.status(200).json({
             success: true,
             user: {
-                id: user._id,
+                id: user.id,
                 email: user.email,
                 username: user.username,
                 role: user.role,
@@ -154,7 +92,7 @@ const getMe = async (req, res) => {
         });
     } catch (error) {
         console.error('Erreur lors de la récupération des infos:', error);
-        res.status(500).json({
+        res.status(error.statusCode || 500).json({
             success: false,
             message: error.message || 'Erreur lors de la récupération des infos'
         });
@@ -164,6 +102,5 @@ const getMe = async (req, res) => {
 module.exports = {
     register,
     login,
-    getMe,
-    generateToken
+    getMe
 };

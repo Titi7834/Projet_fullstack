@@ -1,608 +1,332 @@
-const { Histoire } = require('../model/histoire');
-const { Partie } = require('../model/lecteur');
-const { PartieEnCours } = require('../model/partieEnCours');
+const lecteurService = require('../services/lecteurService');
 
-// Obtenir toutes les histoires publiées avec recherche et filtre par thème
-exports.getHistoiresPubliees = async (req, res) => {
+/**
+ * GET /lecteur/histoires
+ * Obtenir toutes les histoires publiées
+ */
+const getHistoiresPubliees = async (req, res) => {
     try {
         const { search, theme } = req.query;
-        
-        let query = { statut: 'publiée' };
-        
-        if (search) {
-            query.$or = [
-                { titre: { $regex: search, $options: 'i' } },
-                { descriptionCourte: { $regex: search, $options: 'i' } },
-                { tags: { $in: [new RegExp(search, 'i')] } }
-            ];
-        }
 
-        if (theme) {
-            query.theme = theme;
-        }
+        const histoires = await lecteurService.getHistoiresPubliees({ search, theme });
 
-        const histoires = await Histoire.find(query)
-            .populate('auteur', 'username')
-            .sort({ 'statistiques.nbFoisCommencee': -1, createdAt: -1 });
-
-        res.json({
+        res.status(200).json({
             success: true,
+            count: histoires.length,
             data: histoires
         });
     } catch (error) {
-        res.status(500).json({
+        console.error('Erreur lors de la récupération des histoires publiées:', error);
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: error.message
+            message: error.message || 'Erreur lors de la récupération des histoires publiées'
         });
     }
 };
 
-// Démarrer la lecture d'une histoire
-exports.commencerHistoire = async (req, res) => {
+/**
+ * POST /lecteur/histoires/:id/commencer
+ * Commencer une nouvelle partie
+ */
+const commencerHistoire = async (req, res) => {
     try {
-        const histoire = await Histoire.findById(req.params.id)
-            .populate('auteur', 'username');
+        const { id } = req.params;
 
-        if (!histoire) {
-            return res.status(404).json({
-                success: false,
-                message: 'Histoire non trouvée'
-            });
-        }
+        const result = await lecteurService.commencerHistoire(id);
 
-        if (histoire.statut !== 'publiée') {
-            return res.status(403).json({
-                success: false,
-                message: 'Cette histoire n\'est pas publiée'
-            });
-        }
-
-        if (!histoire.pageDepart) {
-            return res.status(400).json({
-                success: false,
-                message: 'Cette histoire n\'a pas de page de départ'
-            });
-        }
-
-        // Trouver la page de départ dans les pages embarquées
-        const pageDepart = histoire.pages.id(histoire.pageDepart);
-
-        if (!pageDepart) {
-            return res.status(400).json({
-                success: false,
-                message: 'Page de départ non trouvée'
-            });
-        }
-
-        // Incrémenter le compteur
-        histoire.statistiques.nbFoisCommencee += 1;
-        await histoire.save();
-
-        res.json({
+        res.status(200).json({
             success: true,
+            message: 'Partie commencée avec succès',
             data: {
-                histoire,
-                pageActuelle: pageDepart
+                histoire: result.histoire,
+                pageActuelle: result.pageActuelle
             }
         });
     } catch (error) {
-        res.status(500).json({
+        console.error('Erreur lors du démarrage de la partie:', error);
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: error.message
+            message: error.message || 'Erreur lors du démarrage de la partie'
         });
     }
 };
 
-// Obtenir une page spécifique
-exports.getPage = async (req, res) => {
+/**
+ * GET /lecteur/histoires/:histoireId/pages/:pageId
+ * Obtenir une page spécifique
+ */
+const getPage = async (req, res) => {
     try {
         const { histoireId, pageId } = req.params;
-        
-        const histoire = await Histoire.findById(histoireId);
 
-        if (!histoire) {
-            return res.status(404).json({
-                success: false,
-                message: 'Histoire non trouvée'
-            });
-        }
+        const page = await lecteurService.getPage(histoireId, pageId);
 
-        const page = histoire.pages.id(pageId);
-
-        if (!page) {
-            return res.status(404).json({
-                success: false,
-                message: 'Page non trouvée'
-            });
-        }
-
-        res.json({
+        res.status(200).json({
             success: true,
             data: page
         });
     } catch (error) {
-        res.status(500).json({
+        console.error('Erreur lors de la récupération de la page:', error);
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: error.message
+            message: error.message || 'Erreur lors de la récupération de la page'
         });
     }
 };
 
-// Enregistrer une partie terminée
-exports.terminerPartie = async (req, res) => {
+/**
+ * POST /lecteur/histoires/:id/terminer
+ * Terminer une partie
+ */
+const terminerPartie = async (req, res) => {
     try {
-        const { histoireId, pageFinId, parcours } = req.body;
+        const { id } = req.params;
+        const lecteurId = req.user.userId;
+        const { pageFinId, parcours } = req.body;
 
-        const histoire = await Histoire.findById(histoireId);
-
-        if (!histoire) {
-            return res.status(404).json({
-                success: false,
-                message: 'Histoire non trouvée'
-            });
-        }
-
-        const pageFin = histoire.pages.id(pageFinId);
-
-        if (!pageFin) {
-            return res.status(404).json({
-                success: false,
-                message: 'Page de fin non trouvée'
-            });
-        }
-
-        if (!pageFin.statutFin) {
-            return res.status(400).json({
-                success: false,
-                message: 'Cette page n\'est pas une page de fin'
-            });
-        }
-
-        // Enregistrer la partie
-        const partie = new Partie({
-            lecteur: req.user._id,
-            histoire: histoireId,
-            pageFin: pageFinId,
-            parcours: parcours || [],
-            dateFin: new Date()
+        const partie = await lecteurService.terminerPartie(lecteurId, {
+            histoireId: id,
+            pageFinId,
+            parcours
         });
-
-        await partie.save();
-
-        // Supprimer la partie en cours si elle existe
-        await PartieEnCours.deleteOne({
-            lecteur: req.user._id,
-            histoire: histoireId
-        });
-
-        // Incrémenter le compteur de parties finies
-        histoire.statistiques.nbFoisFinie += 1;
-        await histoire.save();
 
         res.status(201).json({
             success: true,
-            data: partie,
-            message: 'Partie enregistrée avec succès'
+            message: 'Partie terminée avec succès',
+            data: partie
         });
     } catch (error) {
-        res.status(400).json({
+        console.error('Erreur lors de la fin de partie:', error);
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: error.message
+            message: error.message || 'Erreur lors de la fin de partie'
         });
     }
 };
 
-// Obtenir les parties du lecteur
-exports.getMesParties = async (req, res) => {
+/**
+ * GET /lecteur/parties
+ * Obtenir les parties d'un lecteur
+ */
+const getMesParties = async (req, res) => {
     try {
-        const parties = await Partie.find({ lecteur: req.user._id })
-            .populate({
-                path: 'histoire',
-                select: 'titre descriptionCourte pages',
-                populate: {
-                    path: 'pages'
-                }
-            })
-            .sort({ createdAt: -1 });
+        const lecteurId = req.user.userId;
 
-        // Enrichir les parties avec les informations de la page de fin
-        const partiesEnrichies = parties.map(partie => {
-            const partieObj = partie.toObject();
-            
-            if (partieObj.histoire && partieObj.histoire.pages && partieObj.pageFin) {
-                const pageFin = partieObj.histoire.pages.find(
-                    p => p._id.toString() === partieObj.pageFin.toString()
-                );
-                
-                if (pageFin) {
-                    partieObj.pageFin = {
-                        _id: pageFin._id,
-                        titre: pageFin.titre,
-                        labelFin: pageFin.labelFin,
-                        texte: pageFin.texte
-                    };
-                }
-            }
-            
-            // Nettoyer pour ne pas renvoyer toutes les pages
-            if (partieObj.histoire) {
-                delete partieObj.histoire.pages;
-            }
-            
-            return partieObj;
-        });
+        const parties = await lecteurService.getPartiesByLecteur(lecteurId);
 
-        res.json({
+        res.status(200).json({
             success: true,
-            data: partiesEnrichies
+            count: parties.length,
+            data: parties
         });
     } catch (error) {
-        res.status(500).json({
+        console.error('Erreur lors de la récupération des parties:', error);
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: error.message
+            message: error.message || 'Erreur lors de la récupération des parties'
         });
     }
 };
 
-// Obtenir les statistiques d'une histoire pour le lecteur
-exports.getStatistiquesHistoire = async (req, res) => {
+/**
+ * GET /lecteur/histoires/:id/statistiques
+ * Obtenir les statistiques d'une histoire
+ */
+const getStatistiquesHistoire = async (req, res) => {
     try {
-        const histoire = await Histoire.findById(req.params.id);
+        const { id } = req.params;
 
-        if (!histoire) {
-            return res.status(404).json({
-                success: false,
-                message: 'Histoire non trouvée'
-            });
-        }
+        const statistiques = await lecteurService.getStatistiquesHistoire(id);
 
-        // Compter les parties par page de fin
-        const parties = await Partie.find({ histoire: req.params.id })
-            .populate('pageFin', 'titre texte');
-
-        const statistiques = {
-            nbFoisCommencee: histoire.statistiques.nbFoisCommencee,
-            nbFoisFinie: histoire.statistiques.nbFoisFinie,
-            noteMoyenne: histoire.noteMoyenne,
-            fins: {}
-        };
-
-        parties.forEach(partie => {
-            const finId = partie.pageFin._id.toString();
-            if (!statistiques.fins[finId]) {
-                statistiques.fins[finId] = {
-                    titre: partie.pageFin.titre,
-                    texte: partie.pageFin.texte,
-                    count: 0
-                };
-            }
-            statistiques.fins[finId].count += 1;
-        });
-
-        res.json({
+        res.status(200).json({
             success: true,
             data: statistiques
         });
     } catch (error) {
-        res.status(500).json({
+        console.error('Erreur lors de la récupération des statistiques:', error);
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: error.message
+            message: error.message || 'Erreur lors de la récupération des statistiques'
         });
     }
 };
 
-
-exports.getHistoireById = async (req, res) => {
+/**
+ * GET /lecteur/histoires/:id
+ * Obtenir une histoire par ID
+ */
+const getHistoireById = async (req, res) => {
     try {
-        const histoire = await Histoire.findById(req.params.id)
-            .populate('pageDepart')
-            .populate('auteur', 'username');
+        const { id } = req.params;
 
-        if (!histoire) {
-            return res.status(404).json({
-                success: false,
-                message: 'Histoire non trouvée'
-            });
-        }
-        res.json({
+        const histoire = await lecteurService.getHistoireById(id);
+
+        res.status(200).json({
             success: true,
             data: histoire
         });
     } catch (error) {
-        res.status(500).json({
+        console.error('Erreur lors de la récupération de l\'histoire:', error);
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: error.message
+            message: error.message || 'Erreur lors de la récupération de l\'histoire'
         });
     }
 };
 
-// Noter et commenter une histoire
-exports.noterHistoire = async (req, res) => {
+/**
+ * POST /lecteur/histoires/:id/sauvegarder
+ * Sauvegarder la progression
+ */
+const sauvegarderProgression = async (req, res) => {
     try {
-        const { note, commentaire } = req.body;
-        const histoireId = req.params.id;
+        const { id } = req.params;
+        const lecteurId = req.user.userId;
+        const { pageActuelle, parcours } = req.body;
 
-        if (!note || note < 1 || note > 5) {
-            return res.status(400).json({
-                success: false,
-                message: 'La note doit être entre 1 et 5'
-            });
-        }
+        const partie = await lecteurService.sauvegarderProgression(lecteurId, {
+            histoireId: id,
+            pageActuelle,
+            parcours
+        });
 
-        const histoire = await Histoire.findById(histoireId);
-
-        if (!histoire) {
-            return res.status(404).json({
-                success: false,
-                message: 'Histoire non trouvée'
-            });
-        }
-
-        // Vérifier si l'utilisateur a déjà noté
-        const existingComment = histoire.commentaires.find(
-            c => c.userId.toString() === req.user._id.toString()
-        );
-
-        if (existingComment) {
-            // Mettre à jour la note/commentaire existant
-            existingComment.note = note;
-            existingComment.commentaire = commentaire || existingComment.commentaire;
-        } else {
-            // Ajouter nouveau commentaire
-            histoire.commentaires.push({
-                userId: req.user._id,
-                note,
-                commentaire
-            });
-        }
-
-        await histoire.save();
-
-        res.json({
+        res.status(200).json({
             success: true,
-            message: 'Votre avis a été enregistré',
-            data: {
-                noteMoyenne: histoire.noteMoyenne,
-                nbVotes: histoire.commentaires.length
-            }
+            message: 'Progression sauvegardée avec succès',
+            data: partie
         });
     } catch (error) {
-        res.status(500).json({
+        console.error('Erreur lors de la sauvegarde de la progression:', error);
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: error.message
+            message: error.message || 'Erreur lors de la sauvegarde de la progression'
         });
     }
 };
 
-// Signaler une histoire
-exports.signalerHistoire = async (req, res) => {
+/**
+ * GET /lecteur/histoires/:id/reprendre
+ * Reprendre une partie sauvegardée
+ */
+const reprendrePartie = async (req, res) => {
     try {
-        const { raison } = req.body;
-        const histoireId = req.params.id;
+        const { id } = req.params;
+        const lecteurId = req.user.userId;
 
-        if (!raison || raison.trim() === '') {
-            return res.status(400).json({
-                success: false,
-                message: 'La raison du signalement est obligatoire'
-            });
-        }
+        const result = await lecteurService.reprendrePartie(lecteurId, id);
 
-        const histoire = await Histoire.findById(histoireId);
-
-        if (!histoire) {
-            return res.status(404).json({
-                success: false,
-                message: 'Histoire non trouvée'
-            });
-        }
-
-        // Vérifier si l'utilisateur a déjà signalé cette histoire
-        const existingSignalement = histoire.signalements.find(
-            s => s.userId.toString() === req.user._id.toString()
-        );
-
-        if (existingSignalement) {
-            return res.status(400).json({
-                success: false,
-                message: 'Vous avez déjà signalé cette histoire'
-            });
-        }
-
-        histoire.signalements.push({
-            userId: req.user._id,
-            raison,
-            date: new Date()
-        });
-
-        await histoire.save();
-
-        res.json({
-            success: true,
-            message: 'Signalement enregistré avec succès'
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
-
-// Sauvegarder la progression (sauvegarde automatique)
-exports.sauvegarderProgression = async (req, res) => {
-    try {
-        const { histoireId, pageActuelle, parcours } = req.body;
-
-        await PartieEnCours.findOneAndUpdate(
-            { lecteur: req.user._id, histoire: histoireId },
-            {
-                pageActuelle,
-                parcours,
-                derniereModification: new Date()
-            },
-            { upsert: true, new: true }
-        );
-
-        res.json({
-            success: true,
-            message: 'Progression sauvegardée'
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
-
-// Reprendre une partie en cours
-exports.reprendrePartie = async (req, res) => {
-    try {
-        const histoireId = req.params.id;
-
-        const partieEnCours = await PartieEnCours.findOne({
-            lecteur: req.user._id,
-            histoire: histoireId
-        });
-
-        if (!partieEnCours) {
+        if (!result) {
             return res.status(404).json({
                 success: false,
                 message: 'Aucune partie en cours trouvée'
             });
         }
 
-        const histoire = await Histoire.findById(histoireId)
-            .populate('auteur', 'username');
-
-        if (!histoire) {
-            return res.status(404).json({
-                success: false,
-                message: 'Histoire non trouvée'
-            });
-        }
-
-        const pageActuelle = histoire.pages.id(partieEnCours.pageActuelle);
-
-        res.json({
+        res.status(200).json({
             success: true,
+            message: 'Partie reprise avec succès',
             data: {
-                histoire,
-                pageActuelle,
-                parcours: partieEnCours.parcours
+                histoire: result.histoire,
+                pageActuelle: result.pageActuelle,
+                parcours: result.parcours
             }
         });
     } catch (error) {
-        res.status(500).json({
+        console.error('Erreur lors de la reprise de la partie:', error);
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: error.message
+            message: error.message || 'Erreur lors de la reprise de la partie'
         });
     }
 };
 
-// Obtenir les fins débloquées par l'utilisateur pour une histoire
-exports.getFinsDebloquees = async (req, res) => {
+/**
+ * POST /lecteur/histoires/:id/noter
+ * Noter une histoire
+ */
+const noterHistoire = async (req, res) => {
     try {
-        const histoireId = req.params.id;
+        const { id } = req.params;
+        const lecteurId = req.user.userId;
+        const { note, commentaire } = req.body;
 
-        const parties = await Partie.find({
-            lecteur: req.user._id,
-            histoire: histoireId
-        });
+        const result = await lecteurService.noterHistoire(lecteurId, id, { note, commentaire });
 
-        const histoire = await Histoire.findById(histoireId);
-
-        if (!histoire) {
-            return res.status(404).json({
-                success: false,
-                message: 'Histoire non trouvée'
-            });
-        }
-
-        // Récupérer toutes les fins uniques atteintes
-        const finsDebloquees = [];
-        const finIdsVus = new Set();
-
-        parties.forEach(partie => {
-            const finId = partie.pageFin.toString();
-            if (!finIdsVus.has(finId)) {
-                finIdsVus.add(finId);
-                const pageFin = histoire.pages.id(finId);
-                if (pageFin && pageFin.statutFin) {
-                    finsDebloquees.push({
-                        _id: pageFin._id,
-                        labelFin: pageFin.labelFin || 'Fin sans nom',
-                        texte: pageFin.texte,
-                        dateDebloquage: partie.dateFin
-                    });
-                }
-            }
-        });
-
-        // Compter le nombre total de fins possibles
-        const totalFins = histoire.pages.filter(p => p.statutFin).length;
-
-        res.json({
+        res.status(200).json({
             success: true,
-            data: {
-                finsDebloquees,
-                totalFins,
-                progression: totalFins > 0 ? Math.round((finsDebloquees.length / totalFins) * 100) : 0
-            }
+            message: 'Note enregistrée avec succès',
+            data: result
         });
     } catch (error) {
-        res.status(500).json({
+        console.error('Erreur lors de la notation:', error);
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: error.message
+            message: error.message || 'Erreur lors de la notation'
         });
     }
 };
 
-// Obtenir les statistiques de parcours d'une partie
-exports.getStatistiquesParcours = async (req, res) => {
+/**
+ * POST /lecteur/histoires/:id/signaler
+ * Signaler une histoire
+ */
+const signalerHistoire = async (req, res) => {
     try {
-        const { histoireId, parcours } = req.body;
+        const { id } = req.params;
+        const lecteurId = req.user.userId;
+        const { raison } = req.body;
 
-        // Récupérer toutes les parties terminées pour cette histoire
-        const toutesLesParties = await Partie.find({ histoire: histoireId });
+        const result = await lecteurService.signalerHistoire(lecteurId, id, { raison });
 
-        if (toutesLesParties.length === 0) {
-            return res.json({
-                success: true,
-                data: {
-                    similarite: 0,
-                    message: 'Vous êtes le premier à terminer cette histoire !'
-                }
-            });
-        }
-
-        // Calculer la similarité du parcours
-        let sommeSimilarites = 0;
-
-        toutesLesParties.forEach(partie => {
-            const parcoursAutre = partie.parcours.map(p => p.toString());
-            const parcoursActuel = parcours.map(p => p.toString());
-            
-            // Calculer le pourcentage de pages communes
-            const pagesCommunes = parcoursActuel.filter(p => parcoursAutre.includes(p)).length;
-            const similarite = (pagesCommunes / Math.max(parcoursActuel.length, parcoursAutre.length)) * 100;
-            
-            sommeSimilarites += similarite;
-        });
-
-        const similariteMoyenne = Math.round(sommeSimilarites / toutesLesParties.length);
-
-        res.json({
+        res.status(200).json({
             success: true,
-            data: {
-                similarite: similariteMoyenne,
-                message: `Vous avez pris le même chemin que ${similariteMoyenne}% des joueurs`
-            }
+            message: 'Signalement enregistré avec succès',
+            data: result
         });
     } catch (error) {
-        res.status(500).json({
+        console.error('Erreur lors du signalement:', error);
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: error.message
+            message: error.message || 'Erreur lors du signalement'
         });
     }
+};
+
+/**
+ * GET /lecteur/histoires/:id/fins-debloquees
+ * Obtenir les fins débloquées par un lecteur
+ */
+const getFinsDebloquees = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const lecteurId = req.user.userId;
+
+        const result = await lecteurService.getFinsDebloquees(lecteurId, id);
+
+        res.status(200).json({
+            success: true,
+            data: result
+        });
+    } catch (error) {
+        console.error('Erreur lors de la récupération des fins débloquées:', error);
+        res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || 'Erreur lors de la récupération des fins débloquées'
+        });
+    }
+};
+
+module.exports = {
+    getHistoiresPubliees,
+    commencerHistoire,
+    getPage,
+    terminerPartie,
+    getMesParties,
+    getStatistiquesHistoire,
+    getHistoireById,
+    sauvegarderProgression,
+    reprendrePartie,
+    noterHistoire,
+    signalerHistoire,
+    getFinsDebloquees
 };

@@ -16,8 +16,8 @@ router.delete('/:id', histoireController.deleteHistoire);
 router.patch('/:id/publish', histoireController.publishHistoire);
 
 // Stats avancées et preview
-router.get('/histoires/:id/stats-avancees', histoireController.getStatsAvancees);
-router.get('/histoires/:id/preview', histoireController.previewHistoire);
+router.get('/:id/stats-avancees', histoireController.getStatsAvancees);
+router.get('/:id/preview', histoireController.previewHistoire);
 
 // Gestion des pages
 router.get('/:id/pages', histoireController.getPagesHistoire);

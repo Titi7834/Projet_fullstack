@@ -109,11 +109,11 @@ Application web fullstack de "livres dont vous êtes le héros" avec trois types
 ### 1. Backend
 
 ```powershell
-cd backend/auth-service
+cd backend
 npm install
 ```
 
-Créer un fichier `.env` dans `backend/auth-service/` :
+Créer un fichier `.env` dans `backend/` :
 ```env
 PORT=3000
 MONGODB_URI=mongodb://localhost:27017/histoires-interactives
@@ -139,25 +139,31 @@ VITE_API_URL=http://localhost:3000
 mongod
 ```
 
+### 1.1 Si utilisation de Docker
+```powershell
+cd backend
+docker compose up -d
+```
+
 ### 2. Lancer le Backend
 ```powershell
-cd backend/auth-service
+cd backend
 npm run dev
 ```
 Le serveur démarre sur http://localhost:3000
 
 ### 3. Peupler la base de données (première fois seulement)
 ```powershell
-cd backend/auth-service
+cd backend
 node seed.js
 ```
 
 Cela crée :
 - **4 utilisateurs** :
-  - `admin@example.com` / `password123` (ADMIN)
-  - `alice@example.com` / `password123` (AUTEUR)
-  - `bob@example.com` / `password123` (AUTEUR)
-  - `charlie@example.com` / `password123` (LECTEUR)
+  - `admin@example.com`/ `admin` / `password123` (ADMIN)
+  - `alice@example.com` / `auteur_alice` / `password123` (AUTEUR)
+  - `bob@example.com` / `auteur_bob` / `password123` (AUTEUR)
+  - `charlie@example.com` / `lecteur_charlie` / `password123` (LECTEUR)
 - **2 histoires publiées** complètes avec plusieurs fins :
   - **"La Prophétie du Dragon d'Émeraude"** : Fantasy épique, 15 pages, 8 fins différentes
   - **"Le Laboratoire Oublié - Projet Pandora"** : Sci-Fi éthique, 12 pages, 7 fins différentes
@@ -216,30 +222,29 @@ L'application s'ouvre sur http://localhost:5173
 ```
 Projet_Fullstack/
 ├── backend/
-│   └── auth-service/
-│       ├── src/
-│       │   ├── config/
-│       │   │   └── database.js
-│       │   ├── controllers/
-│       │   │   ├── authController.js
-│       │   │   ├── adminController.js
-│       │   │   ├── histoireController.js
-│       │   │   └── lecteurController.js
-│       │   ├── middleware/
-│       │   │   └── authMiddleware.js
-│       │   ├── model/
-│       │   │   ├── user.js
-│       │   │   ├── histoire.js
-│       │   │   └── lecteur.js
-│       │   ├── routes/
-│       │   │   ├── authRoutes.js
-│       │   │   ├── histoireRoutes.js
-│       │   │   ├── lecteurRoutes.js
-│       │   │   └── adminRoutes.js
-│       │   └── app.js
-│       ├── seed.js
-│       ├── package.json
-│       └── .env
+│   ├──src/
+│   |   ├── config/
+│   |   │   └── database.js
+│   |   ├── controllers/
+│   |   │   ├── authController.js
+│   |   │   ├── adminController.js
+│   |   │   ├── histoireController.js
+│   |   │   └── lecteurController.js
+│   |   ├── middleware/
+│   |   |   └── authMiddleware.js
+│   |   ├── model/
+│   |   │   ├── user.js
+│   |   │   ├── histoire.js
+│   |   │   └── lecteur.js
+│   |   ├── routes/
+│   |   │   ├── authRoutes.js
+│   |   │   ├── histoireRoutes.js
+│   |   │   ├── lecteurRoutes.js
+│   |   │   └── adminRoutes.js
+│   |   └── app.js
+│   ├── seed.js
+│   ├── package.json
+│   └── .env
 │
 └── frontend/
     ├── src/
@@ -314,7 +319,7 @@ Projet_Fullstack/
 ### Lecteur & Partie
 - Tracking des parties terminées avec pageFin
 - Parcours complet (suite de pages visitées)
-- Auto-sauvegarde toutes les 30 secondes
+- Auto-sauvegarde à chaque choix
 - Statistiques de complétion par joueur
 
 ## 🎨 Design
@@ -328,7 +333,7 @@ Projet_Fullstack/
 
 ### Backend ne démarre pas
 - Vérifier que MongoDB est lancé
-- Vérifier le fichier `.env` dans `backend/auth-service/`
+- Vérifier le fichier `.env` dans `backend/`
 - Vérifier le port 3000 disponible
 
 ### Frontend ne se connecte pas au backend
